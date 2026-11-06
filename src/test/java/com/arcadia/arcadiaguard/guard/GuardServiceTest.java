@@ -55,16 +55,8 @@ class GuardServiceTest {
     static void setupConfig() throws Exception {
         // Bootstrap nécessite LoadingModList (FML) → on l'initialise avec des listes vides
         // avant d'appeler Bootstrap, sans Mockito pour éviter les conflits de session.
-        Class<?> lmlClass = Class.forName("net.neoforged.fml.loading.LoadingModList");
-        java.lang.reflect.Method ofMethod = lmlClass.getMethod(
-            "of", List.class, List.class, List.class, List.class, java.util.Map.class
-        );
-        ofMethod.invoke(null, List.of(), List.of(), List.of(), List.of(), java.util.Map.of());
-
-        // ServerPlayer et ses superclasses ont des initialiseurs statiques qui nécessitent
-        // les registres Minecraft → Bootstrap doit être appelé avant que Mockito instrumente.
         net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
+        try { net.minecraft.server.Bootstrap.bootStrap(); } catch (Throwable first) { /* Forge 1.20.1: 1er bootStrap hors FML echoue sur le bus (NetworkEvent), le second passe */ net.minecraft.server.Bootstrap.bootStrap(); }
 
         // Configure le spec en mémoire pour que BYPASS_OP_LEVEL.get() retourne 2
         CommentedConfig cfg = CommentedConfig.inMemory();

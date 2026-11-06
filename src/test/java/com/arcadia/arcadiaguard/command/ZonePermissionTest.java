@@ -27,20 +27,8 @@ class ZonePermissionTest {
     @BeforeAll
     static void bootstrap() throws Exception {
         // Forge 1.20.1: LoadingModList.of(List<ModFile>, List<ModInfo>, EarlyLoadingException)
-        Class<?> lmlClass = Class.forName("net.minecraftforge.fml.loading.LoadingModList");
-        for (java.lang.reflect.Method m : lmlClass.getMethods()) {
-            if (!m.getName().equals("of") || !java.lang.reflect.Modifier.isStatic(m.getModifiers())) continue;
-            Object[] args = new Object[m.getParameterCount()];
-            Class<?>[] types = m.getParameterTypes();
-            for (int i = 0; i < args.length; i++) {
-                args[i] = List.class.isAssignableFrom(types[i]) ? List.of()
-                    : java.util.Map.class.isAssignableFrom(types[i]) ? java.util.Map.of() : null;
-            }
-            m.invoke(null, args);
-            break;
-        }
         net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
+        try { net.minecraft.server.Bootstrap.bootStrap(); } catch (Throwable first) { /* Forge 1.20.1: 1er bootStrap hors FML echoue sur le bus (NetworkEvent), le second passe */ net.minecraft.server.Bootstrap.bootStrap(); }
     }
 
     // --- isViewOnly ---

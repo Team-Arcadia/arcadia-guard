@@ -54,13 +54,8 @@ class AbstractSpellHandlerTest {
 
     @BeforeAll
     static void bootstrap() throws Exception {
-        Class<?> lmlClass = Class.forName("net.minecraftforge.fml.loading.LoadingModList");
-        java.lang.reflect.Method ofMethod = lmlClass.getMethod(
-            "of", List.class, List.class, List.class, List.class, java.util.Map.class
-        );
-        ofMethod.invoke(null, List.of(), List.of(), List.of(), List.of(), java.util.Map.of());
         net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
+        try { net.minecraft.server.Bootstrap.bootStrap(); } catch (Throwable first) { /* Forge 1.20.1: 1er bootStrap hors FML echoue sur le bus (NetworkEvent), le second passe */ net.minecraft.server.Bootstrap.bootStrap(); }
     }
 
     @BeforeEach

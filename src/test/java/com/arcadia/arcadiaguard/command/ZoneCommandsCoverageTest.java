@@ -43,14 +43,9 @@ class ZoneCommandsCoverageTest {
 
     @BeforeAll
     static void setupConfig() throws Exception {
-        Class<?> lmlClass = Class.forName("net.neoforged.fml.loading.LoadingModList");
-        java.lang.reflect.Method ofMethod = lmlClass.getMethod(
-            "of", List.class, List.class, List.class, List.class, java.util.Map.class
-        );
-        ofMethod.invoke(null, List.of(), List.of(), List.of(), List.of(), java.util.Map.of());
 
         net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
+        try { net.minecraft.server.Bootstrap.bootStrap(); } catch (Throwable first) { /* Forge 1.20.1: 1er bootStrap hors FML echoue sur le bus (NetworkEvent), le second passe */ net.minecraft.server.Bootstrap.bootStrap(); }
 
         CommentedConfig cfg = CommentedConfig.inMemory();
         cfg.set(List.of("general", "bypass_op_level"), 2);
