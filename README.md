@@ -1,6 +1,6 @@
 # ArcadiaGuard
 
-> Mod de protection de zones pour NeoForge 1.21.1 — 86 flags configurables, interface graphique complete, integration LuckPerms, rendu 3D des zones en jeu.
+> Mod de protection de zones pour Forge 1.20.1 — 86 flags configurables, interface graphique complete, integration LuckPerms, rendu 3D des zones en jeu.
 
 ---
 
@@ -223,7 +223,7 @@ Les listes d'items sont pilotees par des tags overridables sans recompilation :
 
 ## Informations techniques
 
-- **Environnement** : Client + Serveur (NeoForge 1.21.1, toutes versions 21.1.x)
+- **Environnement** : Client + Serveur (Forge 1.20.1, Forge 47.x)
 - **Java** : 21
 - **Mod ID** : `arcadiaguard`
 - **Version** : 1.5.0
