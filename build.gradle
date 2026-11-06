@@ -13,6 +13,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'idea'
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
@@ -46,7 +47,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'parchment', version: "${parchment_mappings_version}-${minecraft_version}"
+    mappings channel: 'official', version: minecraft_version
     copyIdeResources = true
 
     runs {
