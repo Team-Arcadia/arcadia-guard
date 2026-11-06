@@ -221,4 +221,51 @@ public final class ArcadiaGuardWorldGameTests {
         }
         helper.succeed();
     }
+
+    // ── Test : renommage de zone (etat conserve, enfant re-parente) ─────────────
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 20)
+    public static void zoneRenameKeepsStateAndChildren(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        String oldName = createZoneAround(helper, BuiltinFlags.PVP.id(), false);
+        String newName = "gametest-renamed-" + UUID.randomUUID().toString().substring(0, 8);
+        String childName = "gametest-child-" + UUID.randomUUID().toString().substring(0, 8);
+        try {
+            ProtectedZone child = new ProtectedZone(childName, level.dimension().location().toString(),
+                helper.absolutePos(BlockPos.ZERO), helper.absolutePos(BlockPos.ZERO));
+            child.setParent(oldName);
+            ArcadiaGuard.zoneManager().add(level, child);
+
+            var status = ArcadiaGuard.zoneManager().rename(level, oldName, newName);
+            if (status != com.arcadia.arcadiaguard.zone.ZoneRenamer.Status.OK) {
+                helper.fail("rename should succeed, got " + status);
+                return;
+            }
+            if (ArcadiaGuard.zoneManager().get(level, oldName).isPresent()) {
+                helper.fail("old name should be gone");
+                return;
+            }
+            var renamed = ArcadiaGuard.zoneManager().get(level, newName);
+            if (renamed.isEmpty() || !Boolean.FALSE.equals(
+                    ((ProtectedZone) renamed.get()).flagValues().get(BuiltinFlags.PVP.id()))) {
+                helper.fail("renamed zone should keep pvp=false");
+                return;
+            }
+            var c = ArcadiaGuard.zoneManager().get(level, childName);
+            if (c.isEmpty() || !newName.equals(((ProtectedZone) c.get()).parent())) {
+                helper.fail("child parent should follow rename");
+                return;
+            }
+            if (ArcadiaGuard.zoneManager().rename(level, newName, childName)
+                    != com.arcadia.arcadiaguard.zone.ZoneRenamer.Status.ALREADY_EXISTS) {
+                helper.fail("rename onto existing name should be refused");
+                return;
+            }
+            helper.succeed();
+        } finally {
+            cleanup(helper, oldName);
+            cleanup(helper, newName);
+            cleanup(helper, childName);
+        }
+    }
 }

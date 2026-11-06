@@ -190,6 +190,18 @@ NeoForge.EVENT_BUS.addListener((ZoneRemovedEvent event) -> {
 });
 ```
 
+### ZoneRenamedEvent
+
+Poste apres un renommage reussi (`/ag zone rename` ou GUI). Les zones enfants sont deja re-parentees.
+
+```java
+import com.arcadia.arcadiaguard.api.event.ZoneRenamedEvent;
+
+NeoForge.EVENT_BUS.addListener((ZoneRenamedEvent event) -> {
+    LOGGER.info("Zone renommee : {} -> {}", event.oldName(), event.newName());
+});
+```
+
 ---
 
 ## 5. Interface IZone

@@ -144,6 +144,7 @@ La majorite des actions passent par le GUI. Les commandes sont principalement ut
 /ag wand give                             donner le wand de selection
 /ag zone add <nom> <x1> <y1> <z1> <x2> <y2> <z2>
 /ag zone remove <nom>
+/ag zone rename <nom> <nouveau>
 /ag zone list
 /ag zone whitelist add|remove <nom> <joueur>
 /ag zone parent set|clear <enfant> [<parent>]
