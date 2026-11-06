@@ -163,6 +163,22 @@ public final class ProtectedZone implements IZone {
         return this.memberRolesUnmodifiable;
     }
 
+    /**
+     * Returns a deep copy of this zone under {@code newName}: bounds, whitelist, roles,
+     * flags, blocked items, parent, priority, enabled and inheritDimFlags are preserved.
+     * The name is immutable, so a rename rebuilds the zone instead of mutating it.
+     */
+    public ProtectedZone renamedCopy(String newName) {
+        ProtectedZone copy = new ProtectedZone(newName, this.dimension,
+            this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ,
+            new HashSet<>(this.whitelistedPlayers), this.parent, this.priority,
+            new LinkedHashMap<>(this.flagValues), new LinkedHashMap<>(this.memberRoles),
+            new HashSet<>(this.blockedItems));
+        copy.setEnabled(this.enabled);
+        copy.setInheritDimFlags(this.inheritDimFlags);
+        return copy;
+    }
+
     // --- Accessors ---
 
     public String name() { return this.name; }
