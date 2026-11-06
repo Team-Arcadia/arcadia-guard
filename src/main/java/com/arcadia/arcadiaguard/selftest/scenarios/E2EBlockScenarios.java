@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.CommonHooks;
+import net.minecraftforge.common.ForgeHooks;
 
 /**
  * Vrais E2E pour les flags blocks (RightClickBlock-based).
@@ -34,7 +34,7 @@ public final class E2EBlockScenarios {
         ctx.setBlock(pos, block);
 
         var hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-        var result = CommonHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
+        var result = ForgeHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
         ctx.restoreBlock(pos, snap);
         long elapsed = ms(s);
         if (result.isCanceled()) return ScenarioResult.pass(id, elapsed);

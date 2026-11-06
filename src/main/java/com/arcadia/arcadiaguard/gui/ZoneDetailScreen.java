@@ -287,7 +287,7 @@ public final class ZoneDetailScreen extends Screen {
 
     // ── Render ───────────────────────────────────────────────────────────────────
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) {}
 
     @Override
@@ -1466,7 +1466,8 @@ public final class ZoneDetailScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+    public boolean mouseScrolled(double mx, double my, double dy) {
+        double dx = 0; // 1.20.1: single scroll delta
         if (popup instanceof PopupState.FlagPicker) {
             int[] b = pickerBounds();
             int searchY = b[1] + 24;
@@ -1491,7 +1492,7 @@ public final class ZoneDetailScreen extends Screen {
             return true;
         }
 
-        if (super.mouseScrolled(mx, my, dx, dy)) return true;
+        if (super.mouseScrolled(mx, my, dy)) return true;
         int col2X = gx + COL1_W + 6;
         int col3X = gx + COL1_W + COL2_W + 6;
         int imx = (int) mx;

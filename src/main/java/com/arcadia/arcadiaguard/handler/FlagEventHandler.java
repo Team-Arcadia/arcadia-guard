@@ -23,7 +23,6 @@ import net.minecraft.world.item.EggItem;
 import net.minecraft.world.item.EnderpearlItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MinecartItem;
-import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.item.SnowballItem;
 import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.item.TridentItem;
@@ -162,7 +161,7 @@ public final class FlagEventHandler {
                 || block instanceof AbstractCauldronBlock
                 || block instanceof CakeBlock
                 || block instanceof net.minecraft.world.level.block.AnvilBlock
-                || block instanceof net.minecraft.world.level.block.EnchantingTableBlock
+                || block instanceof net.minecraft.world.level.block.EnchantmentTableBlock
                 || block instanceof net.minecraft.world.level.block.BeaconBlock
                 || block instanceof net.minecraft.world.level.block.BellBlock
                 || block instanceof net.minecraft.world.level.block.CampfireBlock
@@ -230,8 +229,7 @@ public final class FlagEventHandler {
         if ((stack.getItem() instanceof EggItem
                 || stack.getItem() instanceof SnowballItem
                 || stack.getItem() instanceof ThrowablePotionItem
-                || stack.getItem() instanceof TridentItem
-                || stack.getItem() instanceof ProjectileItem)
+                || stack.getItem() instanceof TridentItem)
                 && !(stack.getItem() instanceof EnderpearlItem) // déjà couvert au-dessus
                 && deny(player, pos, BuiltinFlags.ITEM_THROW, "item_throw")) {
             event.setCanceled(true);
@@ -339,7 +337,8 @@ public final class FlagEventHandler {
     }
 
     public void onBonemeal(BonemealEvent event) {
-        if (!(event.getLevel() instanceof Level level)) return;
+        Level level = event.getLevel();
+        if (level == null) return;
         if (level.isClientSide()) return;
         BlockPos pos = event.getPos();
         Block block = event.getBlock().getBlock();

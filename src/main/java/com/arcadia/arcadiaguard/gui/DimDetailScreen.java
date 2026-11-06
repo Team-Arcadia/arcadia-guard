@@ -93,7 +93,7 @@ public final class DimDetailScreen extends Screen {
         addRenderableWidget(backBtn);
     }
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) {}
 
     @Override
@@ -505,7 +505,8 @@ public final class DimDetailScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+    public boolean mouseScrolled(double mx, double my, double dy) {
+        double dx = 0; // 1.20.1: single scroll delta
         if (showPicker) {
             int[] b = pickerBounds();
             int searchY = b[1] + 24;

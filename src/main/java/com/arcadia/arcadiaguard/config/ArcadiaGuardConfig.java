@@ -99,7 +99,6 @@ public final class ArcadiaGuardConfig {
             "Exemple: [\"VERY_HIGH\"] desactive leaf-decay, water-spread, sculk-spread, etc.");
         DISABLED_FLAG_FREQUENCIES = builder.defineList("disabled_flag_frequencies",
             java.util.List.of(),
-            () -> "NORMAL",
             v -> v instanceof String s && (s.equalsIgnoreCase("NEGLIGIBLE")
                 || s.equalsIgnoreCase("LOW") || s.equalsIgnoreCase("NORMAL")
                 || s.equalsIgnoreCase("HIGH") || s.equalsIgnoreCase("VERY_HIGH")));

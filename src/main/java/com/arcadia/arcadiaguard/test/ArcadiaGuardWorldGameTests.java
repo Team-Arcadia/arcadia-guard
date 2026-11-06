@@ -39,7 +39,9 @@ public final class ArcadiaGuardWorldGameTests {
      */
     private static String createZoneAround(GameTestHelper helper, String flagId, Object value) {
         ServerLevel level = helper.getLevel();
-        var bounds = helper.getBounds();
+        // PORT-TODO 1.20.1: GameTestHelper#getBounds is private; approximate with a 16-block box from the structure origin.
+        BlockPos agOrigin = helper.absolutePos(BlockPos.ZERO);
+        var bounds = new net.minecraft.world.phys.AABB(agOrigin, agOrigin.offset(16, 16, 16));
         String zoneName = "gametest-" + flagId + "-" + UUID.randomUUID().toString().substring(0, 8);
         // AABB utilise des champs double publics minX/minY/minZ/maxX/maxY/maxZ.
         ProtectedZone zone = new ProtectedZone(zoneName, level.dimension().location().toString(),

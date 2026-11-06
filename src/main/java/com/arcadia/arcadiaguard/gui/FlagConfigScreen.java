@@ -191,7 +191,7 @@ public final class FlagConfigScreen extends Screen {
         ));
     }
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) {}
 
     @Override
@@ -413,7 +413,8 @@ public final class FlagConfigScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+    public boolean mouseScrolled(double mx, double my, double dy) {
+        double dx = 0; // 1.20.1: single scroll delta
         // S-H22 : scroll dans le dropdown de suggestions
         if (flagType == FlagType.LIST && !filteredSuggestions.isEmpty()
                 && listAddBox != null && listAddBox.isFocused()) {
@@ -433,7 +434,7 @@ public final class FlagConfigScreen extends Screen {
         if (flagType == FlagType.LIST) {
             listScroll = Math.max(0, listScroll - (int) dy);
         }
-        return super.mouseScrolled(mx, my, dx, dy);
+        return super.mouseScrolled(mx, my, dy);
     }
 
     /** Returns true if save succeeded, false if there was a validation error. */

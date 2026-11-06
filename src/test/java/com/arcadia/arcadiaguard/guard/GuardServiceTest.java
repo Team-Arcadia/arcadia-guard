@@ -8,7 +8,6 @@ import com.arcadia.arcadiaguard.zone.DimensionFlagStore;
 import com.arcadia.arcadiaguard.zone.ZoneManager;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.fml.config.IConfigSpec;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -97,27 +96,8 @@ class GuardServiceTest {
         cfg.set(List.of("messages", "message_lead"), "blocked");
         cfg.set(List.of("messages", "message_spawn_egg"), "blocked");
         cfg.set(List.of("messages", "message_dynamic_item"), "blocked");
-        // ILoadedConfig est sealed — on instancie LoadedConfig via réflexion (modConfig=null OK
-        // car on bypasse acceptConfig pour éviter l'appel à save() qui NPE-rait).
-        Class<?> loadedConfigClass = Class.forName("net.neoforged.fml.config.LoadedConfig");
-        Constructor<?> ctor = loadedConfigClass.getDeclaredConstructor(
-            CommentedConfig.class, Path.class,
-            Class.forName("net.neoforged.fml.config.ModConfig")
-        );
-        ctor.setAccessible(true);
-        IConfigSpec.ILoadedConfig loadedConfig = (IConfigSpec.ILoadedConfig) ctor.newInstance(cfg, null, null);
-
-        // On assigne le champ loadedConfig directement (bypass de acceptConfig + save)
-        java.lang.reflect.Field loadedConfigField =
-            ArcadiaGuardConfig.SPEC.getClass().getDeclaredField("loadedConfig");
-        loadedConfigField.setAccessible(true);
-        loadedConfigField.set(ArcadiaGuardConfig.SPEC, loadedConfig);
-
-        // afterReload() réinitialise les caches des ConfigValue — obligatoire
-        java.lang.reflect.Method afterReload =
-            ArcadiaGuardConfig.SPEC.getClass().getDeclaredMethod("afterReload");
-        afterReload.setAccessible(true);
-        afterReload.invoke(ArcadiaGuardConfig.SPEC);
+        // Forge 1.20.1: ForgeConfigSpec#setConfig is public and runs afterReload().
+        ArcadiaGuardConfig.SPEC.setConfig(cfg);
     }
 
     @BeforeEach

@@ -26,10 +26,19 @@ class ZonePermissionTest {
 
     @BeforeAll
     static void bootstrap() throws Exception {
-        Class<?> lmlClass = Class.forName("net.neoforged.fml.loading.LoadingModList");
-        java.lang.reflect.Method ofMethod = lmlClass.getMethod(
-            "of", List.class, List.class, List.class, List.class, java.util.Map.class);
-        ofMethod.invoke(null, List.of(), List.of(), List.of(), List.of(), java.util.Map.of());
+        // Forge 1.20.1: LoadingModList.of(List<ModFile>, List<ModInfo>, EarlyLoadingException)
+        Class<?> lmlClass = Class.forName("net.minecraftforge.fml.loading.LoadingModList");
+        for (java.lang.reflect.Method m : lmlClass.getMethods()) {
+            if (!m.getName().equals("of") || !java.lang.reflect.Modifier.isStatic(m.getModifiers())) continue;
+            Object[] args = new Object[m.getParameterCount()];
+            Class<?>[] types = m.getParameterTypes();
+            for (int i = 0; i < args.length; i++) {
+                args[i] = List.class.isAssignableFrom(types[i]) ? List.of()
+                    : java.util.Map.class.isAssignableFrom(types[i]) ? java.util.Map.of() : null;
+            }
+            m.invoke(null, args);
+            break;
+        }
         net.minecraft.SharedConstants.tryDetectVersion();
         net.minecraft.server.Bootstrap.bootStrap();
     }

@@ -80,7 +80,7 @@ public final class VanillaExtraHandler {
         ProtectedZone zone = zoneAt(level, pos);
         if (zone != null && guard.isZoneMember(player, zone)) return;
 
-        BooleanFlag flag = switch (event.getItemAbility().name()) {
+        BooleanFlag flag = switch (event.getToolAction().name()) {
             case "till" -> BuiltinFlags.TILL_FARMLAND;
             case "strip" -> BuiltinFlags.STRIP_WOOD;
             case "shovel_flatten" -> BuiltinFlags.SHOVEL_PATH;

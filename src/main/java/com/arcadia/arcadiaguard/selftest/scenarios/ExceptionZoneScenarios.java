@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.CommonHooks;
+import net.minecraftforge.common.ForgeHooks;
 
 /**
  * Scenarios in-game pour FR05/FR24 : zones enfant et sous-zones.
@@ -55,7 +55,7 @@ public final class ExceptionZoneScenarios {
             BlockState snap = ctx.level().getBlockState(pos);
             ctx.level().setBlockAndUpdate(pos, Blocks.OAK_DOOR.defaultBlockState());
             var hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-            var result = CommonHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
+            var result = ForgeHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
             ctx.level().setBlockAndUpdate(pos, snap);
 
             ArcadiaGuard.zoneManager().remove(ctx.level(), childName);
@@ -100,7 +100,7 @@ public final class ExceptionZoneScenarios {
             BlockState snap = ctx.level().getBlockState(pos);
             ctx.level().setBlockAndUpdate(pos, Blocks.OAK_DOOR.defaultBlockState());
             var hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-            var result = CommonHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
+            var result = ForgeHooks.onRightClickBlock(ctx.player(), InteractionHand.MAIN_HAND, pos, hit);
             ctx.level().setBlockAndUpdate(pos, snap);
 
             ArcadiaGuard.zoneManager().remove(ctx.level(), childName);

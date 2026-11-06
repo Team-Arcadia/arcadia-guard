@@ -32,7 +32,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import com.arcadia.arcadiaguard.network.PacketHandler;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -89,7 +89,8 @@ public final class GuiActionHandler {
 
     public static void handle(GuiActionPayload payload, NetworkEvent.Context context) {
         // C1: Rate-limit packets C→S before enqueuing work on main thread.
-        if (context.getSender() instanceof ServerPlayer sp) {
+        ServerPlayer sp = context.getSender();
+        if (sp != null) {
             UUID uuid = sp.getUUID();
             if (RATE_LIMITERS.size() > 500) {
                 RATE_LIMITERS.clear();
@@ -108,7 +109,8 @@ public final class GuiActionHandler {
             return;
         }
         context.enqueueWork(() -> {
-            if (!(context.getSender() instanceof ServerPlayer player)) return;
+            ServerPlayer player = context.getSender();
+            if (player == null) return;
 
             switch (payload.action()) {
                 case REQUEST_DETAIL -> {
@@ -268,7 +270,7 @@ public final class GuiActionHandler {
         String dim = level.dimension().location().toString();
         var event = new ZoneLifecycleEvent.CreateZone(player, level, name, dim,
             new BlockPos(p.x1(), p.y1(), p.z1()), new BlockPos(p.x2(), p.y2(), p.z2()));
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         if (event.isSuccess()) {
             player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_created", name).withStyle(ChatFormatting.GREEN));
             ArcadiaGuard.zoneManager().sendRefreshedList(player);
@@ -280,7 +282,7 @@ public final class GuiActionHandler {
     private static void deleteZone(ServerPlayer player, String zoneName) {
         // S-H18 : resoudre le level reel de la zone (cross-dim), pas celui du joueur.
         var event = new ZoneLifecycleEvent.DeleteZone(player, resolveZoneLevel(player, zoneName), zoneName);
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         if (event.isSuccess()) {
             player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_deleted", zoneName).withStyle(ChatFormatting.GREEN));
             // Purge le cache de rendu client (ZoneRenderer) chez TOUS les joueurs connectes,
@@ -298,7 +300,7 @@ public final class GuiActionHandler {
     private static void postSetFlag(ServerPlayer player, String zoneName,
             String flagId, Object value, boolean reset) {
         var event = new ZoneLifecycleEvent.SetFlag(player, resolveZoneLevel(player, zoneName), zoneName, flagId, value, reset);
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         if (event.isSuccess()) ArcadiaGuard.zoneManager().sendDetailToPlayer(player, zoneName);
         else player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_not_found", zoneName).withStyle(ChatFormatting.RED));
     }
@@ -320,7 +322,7 @@ public final class GuiActionHandler {
         // pour une zone du nether ne faisait rien).
         Level targetLevel = resolveZoneLevel(player, zoneName);
         var event = new ZoneLifecycleEvent.ModifyZone(player, targetLevel, zoneName, kind, arg1, arg2);
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         if (event.isSuccess()) {
             ArcadiaGuard.zoneManager().sendDetailToPlayer(player, zoneName);
         } else {

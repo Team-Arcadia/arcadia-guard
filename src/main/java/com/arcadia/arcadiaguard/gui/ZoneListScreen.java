@@ -7,7 +7,7 @@ import com.arcadia.arcadiaguard.network.gui.OpenGuiPayload.ZoneEntry;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.SequencedSet;
+import java.util.Set;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -210,7 +210,7 @@ public final class ZoneListScreen extends Screen {
         addRenderableWidget(closeBtn);
     }
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) {}
 
     @Override
@@ -766,8 +766,9 @@ public final class ZoneListScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
-        if (super.mouseScrolled(mx, my, dx, dy)) return true;
+    public boolean mouseScrolled(double mx, double my, double dy) {
+        double dx = 0; // 1.20.1: single scroll delta
+        if (super.mouseScrolled(mx, my, dy)) return true;
         // Si le curseur est dans la liste des dimensions (sidebar), scroll la sidebar.
         if (mx >= gx && mx < gx + SIDEBAR_W && my >= dimListAreaTop && my < dimListAreaBottom) {
             sidebarScrollOffset = Math.max(0, sidebarScrollOffset - (int)(dy * 18));
@@ -787,7 +788,7 @@ public final class ZoneListScreen extends Screen {
 
     private void applyFilter() {
         // Extra dims from mod zones
-        SequencedSet<String> modDimSet = new LinkedHashSet<>();
+        Set<String> modDimSet = new LinkedHashSet<>();
         for (ZoneEntry z : allZones) {
             String d = z.dim();
             if (!d.equals("minecraft:overworld") && !d.equals("minecraft:the_nether") && !d.equals("minecraft:the_end"))

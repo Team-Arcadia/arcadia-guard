@@ -15,13 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ContainersMixin {
 
     @Inject(
-        method = "dropContentsOnDestroy(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V",
+        method = "dropContents(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/Container;)V",
         at = @At("HEAD"),
         cancellable = true
     )
-    private static void arcadiaguard$blockProtectedContainerDrops(BlockState state, BlockState newState,
-            Level level, BlockPos pos, CallbackInfo ci) {
-        if (state.is(newState.getBlock())) return;
+    private static void arcadiaguard$blockProtectedContainerDrops(Level level, BlockPos pos,
+            net.minecraft.world.Container container, CallbackInfo ci) {
         if (!FlagMixinHelper.mayDeny(level, BuiltinFlags.BLOCK_BREAK)) return;
         if (!FlagMixinHelper.isDenied(level, pos, BuiltinFlags.BLOCK_BREAK)) return;
         if (FlagMixinHelper.consumeContainerDropAllowance(level, pos)) return;

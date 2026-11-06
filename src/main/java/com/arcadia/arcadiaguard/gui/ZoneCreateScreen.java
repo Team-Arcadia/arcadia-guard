@@ -81,7 +81,7 @@ public final class ZoneCreateScreen extends Screen {
         minecraft.setScreen(parent);
     }
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) { /* désactivé */ }
 
     @Override

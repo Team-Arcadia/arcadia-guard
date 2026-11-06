@@ -107,7 +107,7 @@ public final class ZoneLogsScreen extends Screen {
             actionFilter.getValue().trim()));
     }
 
-    @Override
+    // PORT: no blur in 1.20.1
     public void renderBlurredBackground(float partialTick) {}
 
     @Override
@@ -216,7 +216,8 @@ public final class ZoneLogsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+    public boolean mouseScrolled(double mx, double my, double dy) {
+        double dx = 0; // 1.20.1: single scroll delta
         int listH = GUI_H - HDR_H - FTR_H - 48;
         int maxVis = listH / ROW_H;
         scroll = Mth.clamp((int)(scroll - dy), 0, Math.max(0, data.entries().size() - maxVis));

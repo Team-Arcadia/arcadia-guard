@@ -126,7 +126,7 @@ public final class E2EScenarios {
             var face = net.minecraft.core.Direction.UP;
             var hitResult = new net.minecraft.world.phys.BlockHitResult(
                 net.minecraft.world.phys.Vec3.atCenterOf(pos), face, pos, false);
-            var result = net.minecraftforge.common.CommonHooks.onRightClickBlock(
+            var result = net.minecraftforge.common.ForgeHooks.onRightClickBlock(
                 ctx.player(), hand, pos, hitResult);
             BlockState after = ctx.level().getBlockState(pos);
             ctx.restoreBlock(pos, snap);

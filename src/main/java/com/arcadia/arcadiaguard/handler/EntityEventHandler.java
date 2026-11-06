@@ -285,9 +285,7 @@ public final class EntityEventHandler {
         if (exploder instanceof Creeper || isMutantCreeperLike) {
             flag = BuiltinFlags.CREEPER_EXPLOSION;
         } else if (exploder instanceof PrimedTnt
-                || exploder instanceof MinecartTNT
-                || (exploder == null
-                    && "TNT".equals(explosion.getBlockInteraction().name()))) {
+                || exploder instanceof MinecartTNT) { // PORT-TODO: 1.20.1 has no BlockInteraction.TNT
             flag = BuiltinFlags.TNT_EXPLOSION;
         } else {
             flag = BuiltinFlags.BLOCK_EXPLOSION;
@@ -297,7 +295,7 @@ public final class EntityEventHandler {
         // Si toute la bbox d'explosion est contenue dans cette zone, 1 seul check
         // vs N check par bloc (gros gain sur mega-TNT = 10k+ blocs affectes).
         final BooleanFlag finalFlag = flag;
-        net.minecraft.world.phys.Vec3 origin = explosion.center();
+        net.minecraft.world.phys.Vec3 origin = explosion.getPosition();
         net.minecraft.core.BlockPos originPos = net.minecraft.core.BlockPos.containing(origin);
         var originZoneOpt = guard.zoneManager().findZoneContaining(level, originPos);
         if (originZoneOpt.isPresent()
@@ -341,7 +339,8 @@ public final class EntityEventHandler {
     // pour les spawns naturels déjà bloqués.
     public void onMobJoinLevel(EntityJoinLevelEvent event) {
         if (event.isCanceled()) return;
-        if (!(event.getLevel() instanceof Level level)) return;
+        if (!(event.getLevel() instanceof Level)) return;
+        Level level = event.getLevel();
         if (level.isClientSide()) return;
         if (!(event.getEntity() instanceof Mob mob)) return;
         if (!com.arcadia.arcadiaguard.helper.FlagMixinHelper.hasAnyRuleInDim(level)) return;
@@ -397,7 +396,8 @@ public final class EntityEventHandler {
 
     public void onAnimalJoinLevel(EntityJoinLevelEvent event) {
         if (event.isCanceled()) return;
-        if (!(event.getLevel() instanceof Level level)) return;
+        if (!(event.getLevel() instanceof Level)) return;
+        Level level = event.getLevel();
         if (level.isClientSide()) return;
         if (!(event.getEntity() instanceof Animal animal)) return;
         if (!com.arcadia.arcadiaguard.helper.FlagMixinHelper.hasAnyRuleInDim(level)) return;

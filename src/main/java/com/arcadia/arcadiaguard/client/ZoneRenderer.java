@@ -22,6 +22,18 @@ public final class ZoneRenderer {
 
     private ZoneRenderer() {}
 
+    /** 1.20.1: RenderStateShard constants are protected; expose them through a subclass. */
+    private static final class Shards extends RenderType {
+        private Shards() { super("arcadiaguard_dummy", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 256, false, false, () -> {}, () -> {}); }
+        static final ShaderStateShard RENDERTYPE_LINES_SHADER = RenderStateShard.RENDERTYPE_LINES_SHADER;
+        static final TransparencyStateShard TRANSLUCENT_TRANSPARENCY = RenderStateShard.TRANSLUCENT_TRANSPARENCY;
+        static final OutputStateShard ITEM_ENTITY_TARGET = RenderStateShard.ITEM_ENTITY_TARGET;
+        static final WriteMaskStateShard COLOR_DEPTH_WRITE = RenderStateShard.COLOR_DEPTH_WRITE;
+        static final DepthTestStateShard NO_DEPTH_TEST = RenderStateShard.NO_DEPTH_TEST;
+        static final CullStateShard NO_CULL = RenderStateShard.NO_CULL;
+        static LineStateShard line(double w) { return new LineStateShard(OptionalDouble.of(w)); }
+    }
+
     /** RenderType for root zones (thick line, no depth test). */
     private static final RenderType AG_LINES_ROOT = RenderType.create(
         "arcadiaguard_lines_root",
@@ -30,13 +42,13 @@ public final class ZoneRenderer {
         256,
         false, false,
         RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(4.0)))
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
-            .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-            .setCullState(RenderStateShard.NO_CULL)
+            .setShaderState(Shards.RENDERTYPE_LINES_SHADER)
+            .setLineState(Shards.line(4.0))
+            .setTransparencyState(Shards.TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(Shards.ITEM_ENTITY_TARGET)
+            .setWriteMaskState(Shards.COLOR_DEPTH_WRITE)
+            .setDepthTestState(Shards.NO_DEPTH_TEST)
+            .setCullState(Shards.NO_CULL)
             .createCompositeState(false)
     );
 
@@ -48,13 +60,13 @@ public final class ZoneRenderer {
         256,
         false, false,
         RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2.5)))
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
-            .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-            .setCullState(RenderStateShard.NO_CULL)
+            .setShaderState(Shards.RENDERTYPE_LINES_SHADER)
+            .setLineState(Shards.line(2.5))
+            .setTransparencyState(Shards.TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(Shards.ITEM_ENTITY_TARGET)
+            .setWriteMaskState(Shards.COLOR_DEPTH_WRITE)
+            .setDepthTestState(Shards.NO_DEPTH_TEST)
+            .setCullState(Shards.NO_CULL)
             .createCompositeState(false)
     );
 

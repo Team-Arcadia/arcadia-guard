@@ -24,6 +24,15 @@ public class CenteredEditBox extends EditBox {
 
     private static final float BASELINE_CORRECTION = 1.0f;
 
+    /** 1.20.1: EditBox#isBordered is not public, track the flag ourselves. */
+    private boolean agBordered = true;
+
+    @Override
+    public void setBordered(boolean bordered) {
+        super.setBordered(bordered);
+        this.agBordered = bordered;
+    }
+
     public CenteredEditBox(Font font, int x, int y, int width, int height, Component placeholder) {
         super(font, x, y, width, height, placeholder);
     }
@@ -31,7 +40,7 @@ public class CenteredEditBox extends EditBox {
     @Override
     public void renderWidget(GuiGraphics g, int mx, int my, float partialTick) {
         if (!this.isVisible()) return;
-        boolean bordered = this.isBordered();
+        boolean bordered = this.agBordered;
         // Cas 1: bordered=false — vanilla dessine texte a y brut (top-aligned).
         // On translate pour centrer verticalement dans la hauteur de l'EditBox.
         if (!bordered) {

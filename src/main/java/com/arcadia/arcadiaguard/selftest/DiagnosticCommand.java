@@ -476,7 +476,7 @@ public final class DiagnosticCommand {
         JsonObject tick = new JsonObject();
         tick.addProperty("tick_count", server.getTickCount());
         tick.addProperty("avg_tick_ms_overall",
-            server.getAverageTickTimeNanos() / 1_000_000.0);
+            (double) server.getAverageTickTime());
         root.add("ticks", tick);
 
         // Liste COMPLETE des mods
