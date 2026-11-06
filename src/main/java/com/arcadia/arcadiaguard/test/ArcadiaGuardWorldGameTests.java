@@ -39,14 +39,16 @@ public final class ArcadiaGuardWorldGameTests {
      */
     private static String createZoneAround(GameTestHelper helper, String flagId, Object value) {
         ServerLevel level = helper.getLevel();
-        // PORT-TODO 1.20.1: GameTestHelper#getBounds is private; approximate with a 16-block box from the structure origin.
-        BlockPos agOrigin = helper.absolutePos(BlockPos.ZERO);
-        var bounds = new net.minecraft.world.phys.AABB(agOrigin, agOrigin.offset(16, 16, 16));
+        // 1.20.1 : GameTestHelper#getBounds est prive. Les tests n'utilisent que les blocs
+        // voisins de ZERO.above(1) : boite serree (marge 2) pour ne pas chevaucher les zones
+        // des tests voisins du meme batch (une boite trop large faisait gagner la zone
+        // d'un autre test dans findZoneContaining).
+        BlockPos a = helper.absolutePos(BlockPos.ZERO);
+        BlockPos b = helper.absolutePos(new BlockPos(1, 3, 1));
         String zoneName = "gametest-" + flagId + "-" + UUID.randomUUID().toString().substring(0, 8);
-        // AABB utilise des champs double publics minX/minY/minZ/maxX/maxY/maxZ.
         ProtectedZone zone = new ProtectedZone(zoneName, level.dimension().location().toString(),
-            new BlockPos((int) bounds.minX - 5, (int) bounds.minY - 5, (int) bounds.minZ - 5),
-            new BlockPos((int) bounds.maxX + 5, (int) bounds.maxY + 5, (int) bounds.maxZ + 5));
+            new BlockPos(Math.min(a.getX(), b.getX()) - 2, Math.min(a.getY(), b.getY()) - 2, Math.min(a.getZ(), b.getZ()) - 2),
+            new BlockPos(Math.max(a.getX(), b.getX()) + 2, Math.max(a.getY(), b.getY()) + 2, Math.max(a.getZ(), b.getZ()) + 2));
         zone.setFlag(flagId, value);
         if (!ArcadiaGuard.zoneManager().add(level, zone)) {
             helper.fail("setup: failed to add zone '" + zoneName + "'");
@@ -81,15 +83,16 @@ public final class ArcadiaGuardWorldGameTests {
         zombie.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, 0, 0);
         helper.getLevel().addFreshEntity(zombie);
         // Apres quelques ticks le handler MobSpawnHandler doit avoir despawn le mob.
-        helper.succeedOnTickWhen(20, () -> {
+        // 1.20.1 : succeedOnTickWhen exige le succes pile au tick donne -> runAfterDelay.
+        helper.runAfterDelay(20, () -> {
             var found = helper.getLevel().getEntitiesOfClass(Zombie.class,
                 new net.minecraft.world.phys.AABB(spawnPos).inflate(3.0));
-            if (!found.isEmpty()) {
-                cleanup(helper, zoneName);
-                throw new net.minecraft.gametest.framework.GameTestAssertException(
-                    "Zombie should be removed by monster-spawn=deny, found " + found.size());
-            }
             cleanup(helper, zoneName);
+            if (!found.isEmpty()) {
+                helper.fail("Zombie should be removed by monster-spawn=deny, found " + found.size());
+                return;
+            }
+            helper.succeed();
         });
     }
 

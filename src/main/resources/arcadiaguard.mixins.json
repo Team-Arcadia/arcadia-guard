@@ -15,6 +15,7 @@
     "IceBlockMixin",
     "FlowingFluidMixin",
     "ContainersMixin",
+    "BlockDropsMixin",
     "SaplingBlockMixin"
   ],
   "server": [],

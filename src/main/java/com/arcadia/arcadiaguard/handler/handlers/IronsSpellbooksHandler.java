@@ -37,8 +37,9 @@ public final class IronsSpellbooksHandler extends AbstractSpellHandler {
     }
 
     private static final Set<String> MOVEMENT_SPELLS = Set.of(
-        "ironsspellbooks:teleport_spell", "ironsspellbooks:blink_spell",
-        "ironsspellbooks:blood_step_spell", "ironsspellbooks:wind_gust_spell"
+        // PORT: ids 1.20.1 verifies (irons_spellbooks 3.16.3) ; pas de sort "blink".
+        "irons_spellbooks:teleport", "irons_spellbooks:frost_step",
+        "irons_spellbooks:blood_step", "irons_spellbooks:gust"
     );
 
     public IronsSpellbooksHandler(GuardService guardService) {

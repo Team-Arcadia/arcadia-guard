@@ -19,7 +19,7 @@ import net.minecraftforge.eventbus.api.Event;
  */
 public final class ParcoolHandler implements DynamicEventHandler {
 
-    private static final String EVENT_CLASS = "com.alrex.parcool.api.unstable.action.ParCoolActionEvent$TryToStart";
+    private static final String EVENT_CLASS = "com.alrex.parcool.api.action.ParCoolActionEvent$TryToStart";
 
     private final GuardService guardService;
 

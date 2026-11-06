@@ -26,8 +26,8 @@ public abstract class ActionProcessorMixin {
     private static boolean LOADED_LOGGED = false;
 
     @Inject(
-        // PORT: ParCool 1.20.1 Forge signature assumed onTick(TickEvent.PlayerTickEvent) (unverified)
-        method = "onTick(Lnet/minecraftforge/event/TickEvent$PlayerTickEvent;)V",
+        // PORT: verifie ParCool 4.0.2.0 : onTickPlayer(TickEvent.PlayerTickEvent)
+        method = "onTickPlayer(Lnet/minecraftforge/event/TickEvent$PlayerTickEvent;)V",
         at = @At("HEAD"),
         cancellable = true,
         remap = false

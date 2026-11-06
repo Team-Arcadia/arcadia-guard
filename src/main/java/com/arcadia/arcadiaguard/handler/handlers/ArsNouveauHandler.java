@@ -22,7 +22,7 @@ public final class ArsNouveauHandler extends AbstractSpellHandler
     private static final String EVENT_CLASS = "com.hollingsworth.arsnouveau.api.event.SpellCastEvent";
 
     private static final Set<String> MOVEMENT_GLYPHS = Set.of(
-        "ars_nouveau:glyph_blink", "ars_nouveau:glyph_leap", "ars_nouveau:glyph_acceleration"
+        "ars_nouveau:glyph_blink", "ars_nouveau:glyph_leap", "ars_nouveau:glyph_accelerate"
     );
 
     public ArsNouveauHandler(GuardService guardService) {
@@ -123,8 +123,7 @@ public final class ArsNouveauHandler extends AbstractSpellHandler
 
     private BlockPos warpScrollDestination(ItemStack stack) {
         try {
-            // PORT-TODO: Ars Nouveau 1.20.1 has no data components; assumed API
-            // WarpScroll.WarpScrollData.get(ItemStack) -> isValid()/getPos() (unverified).
+            // PORT: verifie Ars Nouveau 4.12.7 : WarpScroll$WarpScrollData.get(ItemStack), isValid(), getPos().
             Class<?> dataCls = Class.forName("com.hollingsworth.arsnouveau.common.items.WarpScroll$WarpScrollData");
             Object warpScrollData = dataCls.getMethod("get", ItemStack.class).invoke(null, stack);
             if (warpScrollData == null) return null;

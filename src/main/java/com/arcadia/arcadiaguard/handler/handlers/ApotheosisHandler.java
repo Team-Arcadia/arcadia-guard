@@ -17,9 +17,13 @@ import net.minecraftforge.event.level.BlockEvent;
 
 public final class ApotheosisHandler implements BlockBreakHandler, RightClickBlockHandler {
 
-    private static final String RADIAL_AFFIX_CLASS = "dev.shadowsoffire.apotheosis.affix.effect.RadialAffix";
-    private static final String RADIAL_BONUS_CLASS = "dev.shadowsoffire.apotheosis.socket.gem.bonus.special.RadialBonus";
-    private static final String RADIAL_UTIL_CLASS = "dev.shadowsoffire.apotheosis.util.RadialUtil";
+    // PORT: Apotheosis 7.4.8 (1.20.1) : classes sous dev.shadowsoffire.apotheosis.adventure.*,
+    // pas de RadialUtil/RadialBonus. RadialAffix.breakBlockRadius calcule les blocs en interne.
+    private static final String RADIAL_AFFIX_CLASS = "dev.shadowsoffire.apotheosis.adventure.affix.effect.RadialAffix";
+    private static final String RADIAL_STATE_CLASS = "dev.shadowsoffire.apotheosis.adventure.affix.effect.RadialAffix$RadialState";
+    private static final String AFFIX_HELPER_CLASS = "dev.shadowsoffire.apotheosis.adventure.affix.AffixHelper";
+    /** Rayon max d'un RadialAffix 1.20.1 (5x5 + offsets) : verification conservatrice. */
+    private static final int RADIAL_MAX_RADIUS = 2;
     private final GuardService guardService;
 
     public ApotheosisHandler(GuardService guardService) {
@@ -40,23 +44,18 @@ public final class ApotheosisHandler implements BlockBreakHandler, RightClickBlo
         Object toolObj = ReflectionHelper.invoke(player, "getMainHandItem", new Class<?>[0]).orElse(ItemStack.EMPTY);
         if (!(toolObj instanceof ItemStack tool) || tool.isEmpty()) return;
 
-        Object radialData = radialData(tool);
-        if (radialData == null) return;
+        if (!hasRadialAffix(tool) || !radialMiningEnabled(player)) return;
 
         if (this.guardService.blockIfProtected(player, pos, "apotheosis:tunneling", "apotheosis", ArcadiaGuardConfig.MESSAGE_APOTHEOSIS.get()).blocked()) {
             event.setCanceled(true);
             return;
         }
 
-        Object hit = ReflectionHelper.invokeStatic(RADIAL_UTIL_CLASS, "tracePlayerLook", new Class<?>[] { playerRef.getClass() }, playerRef).orElse(null);
-        Object direction = hit == null ? null : ReflectionHelper.invoke(hit, "getDirection", new Class<?>[0]).orElse(null);
-        if (direction == null) return;
-
-        Object broken = ReflectionHelper.invokeStatic(RADIAL_UTIL_CLASS, "getBrokenBlocks", new Class<?>[] { playerRef.getClass(), direction.getClass(), posRef.getClass(), radialData.getClass() }, playerRef, direction, posRef, radialData).orElse(List.of());
-        if (!(broken instanceof Collection<?> positions)) return;
-        for (Object extraPos : positions) {
-            if (!(extraPos instanceof BlockPos blockPos)) continue;
-            if (this.guardService.blockIfProtected(player, blockPos, "apotheosis:tunneling", "apotheosis", ArcadiaGuardConfig.MESSAGE_APOTHEOSIS.get()).blocked()) {
+        // PORT: pas de RadialUtil.getBrokenBlocks en 1.20.1 -> on verifie la boite max autour du bloc.
+        for (BlockPos extraPos : BlockPos.betweenClosed(pos.offset(-RADIAL_MAX_RADIUS, -RADIAL_MAX_RADIUS, -RADIAL_MAX_RADIUS),
+                pos.offset(RADIAL_MAX_RADIUS, RADIAL_MAX_RADIUS, RADIAL_MAX_RADIUS))) {
+            if (extraPos.equals(pos)) continue;
+            if (this.guardService.blockIfProtected(player, extraPos.immutable(), "apotheosis:tunneling", "apotheosis", ArcadiaGuardConfig.MESSAGE_APOTHEOSIS.get()).blocked()) {
                 event.setCanceled(true);
                 return;
             }
@@ -92,7 +91,7 @@ public final class ApotheosisHandler implements BlockBreakHandler, RightClickBlo
         // AffixHelper.hasAffixes(ItemStack) — retourne true si l'item a des affixes Apotheosis.
         // L'outil peut être n'importe quel item (pioche vanilla, etc.) avec un data component Apotheosis.
         Object result = ReflectionHelper.invokeStatic(
-            "dev.shadowsoffire.apotheosis.affix.AffixHelper",
+            AFFIX_HELPER_CLASS,
             "hasAffixes",
             new Class<?>[] { ItemStack.class },
             stack
@@ -100,9 +99,28 @@ public final class ApotheosisHandler implements BlockBreakHandler, RightClickBlo
         return Boolean.TRUE.equals(result);
     }
 
-    private Object radialData(ItemStack tool) {
-        Object affixData = ReflectionHelper.invokeStatic(RADIAL_AFFIX_CLASS, "getRadialData", new Class<?>[] { tool.getClass() }, tool).orElse(null);
-        if (affixData != null) return affixData;
-        return ReflectionHelper.invokeStatic(RADIAL_BONUS_CLASS, "getRadialData", new Class<?>[] { tool.getClass() }, tool).orElse(null);
+    /** AffixHelper.getAffixes(ItemStack) -> Map<DynamicHolder<Affix>, AffixInstance> ; holder.get() instanceof RadialAffix. */
+    private boolean hasRadialAffix(ItemStack tool) {
+        try {
+            Class<?> radialCls = Class.forName(RADIAL_AFFIX_CLASS);
+            Object map = ReflectionHelper.invokeStatic(AFFIX_HELPER_CLASS, "getAffixes", new Class<?>[] { ItemStack.class }, tool).orElse(null);
+            if (!(map instanceof java.util.Map<?, ?> affixes)) return false;
+            for (Object holder : affixes.keySet()) {
+                Object affix = ReflectionHelper.invoke(holder, "get", new Class<?>[0]).orElse(null);
+                if (radialCls.isInstance(affix)) return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
+    }
+
+    /** RadialState.getState(Player).isRadialMiningEnabled(Player) ; true si la reflexion echoue (prudence). */
+    private boolean radialMiningEnabled(ServerPlayer player) {
+        Object state = ReflectionHelper.invokeStatic(RADIAL_STATE_CLASS, "getState",
+            new Class<?>[] { net.minecraft.world.entity.player.Player.class }, player).orElse(null);
+        if (state == null) return true;
+        Object enabled = ReflectionHelper.invoke(state, "isRadialMiningEnabled",
+            new Class<?>[] { net.minecraft.world.entity.player.Player.class }, player).orElse(Boolean.TRUE);
+        return !Boolean.FALSE.equals(enabled);
     }
 }

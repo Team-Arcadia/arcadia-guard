@@ -49,9 +49,9 @@ public final class BlockEventHandler {
         }
     }
 
-    // PORT-TODO: BlockDropsEvent does not exist on Forge 1.20.1. Player breaks are already
-    // denied by BlockEvent.BreakEvent (HIGHEST), so no drops occur; drop suppression for
-    // non-player breakers in denied zones is disabled on this port.
+    // BlockDropsEvent n'existe pas en Forge 1.20.1 : les casses joueur sont refusees par
+    // BlockEvent.BreakEvent (HIGHEST) ; les drops des casses non-joueur en zone block-break
+    // refusee sont supprimes par mixin/BlockDropsMixin (Block.dropResources).
 
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (!ArcadiaGuardConfig.ENABLE_BLOCK_PLACE.get()) return;
