@@ -70,6 +70,7 @@ public final class ArcadiaGuardCommands {
         sendCmdI18n(ctx, "/ag zone create <nom>",                      "arcadiaguard.help.zone_create");
         sendCmdI18n(ctx, "/ag zone remove <nom>",                      "arcadiaguard.help.zone_remove");
         sendCmdI18n(ctx, "/ag zone copy <nom> <nouveau>",              "arcadiaguard.help.zone_copy");
+        sendCmdI18n(ctx, "/ag zone rename <nom> <nouveau>",            "arcadiaguard.help.zone_rename");
         sendCmdI18n(ctx, "/ag zone flag <nom> <flag> allow|deny|reset","arcadiaguard.help.zone_flag");
         sendCmdI18n(ctx, "/ag zone whitelist add <zone> <joueur>",     "arcadiaguard.help.zone_whitelist_add");
         sendCmdI18n(ctx, "/ag zone whitelist role <zone> <joueur> <rôle>", "arcadiaguard.help.zone_whitelist_role");

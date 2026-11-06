@@ -264,7 +264,36 @@ public final class ZoneManager implements IZoneManager {
         return this.internal.setBounds(level, zoneName, a, b);
     }
 
+    /**
+     * Renames a zone (names are unique per dimension). Releases force-loaded chunks under the
+     * old name and re-applies CHUNKLOAD under the new one.
+     */
+    public ZoneRenamer.Status rename(Level level, String oldName, String newName) {
+        @SuppressWarnings("unchecked")
+        var oldOpt = (java.util.Optional<ProtectedZone>)(java.util.Optional<?>)
+            this.internal.get(level, oldName);
+        if (oldOpt.isPresent() && level instanceof net.minecraft.server.level.ServerLevel sl
+                && com.arcadia.arcadiaguard.ArcadiaGuardPaths.isValidZoneName(newName)
+                && this.internal.get(level, newName).isEmpty()) {
+            ZoneChunkLoader.unload(sl, oldOpt.get());
+        }
+        ZoneRenamer.Status status = this.internal.rename(level, oldName, newName);
+        if (level instanceof net.minecraft.server.level.ServerLevel sl) {
+            String key = status == ZoneRenamer.Status.OK ? newName : oldName;
+            @SuppressWarnings("unchecked")
+            var zoneOpt = (java.util.Optional<ProtectedZone>)(java.util.Optional<?>)
+                this.internal.get(level, key);
+            zoneOpt.ifPresent(z -> ZoneChunkLoader.apply(sl, z, ArcadiaGuard.guardService()));
+        }
+        return status;
+    }
+
     // ── ZoneLifecycleEvent subscribers ───────────────────────────────────────────
+
+    @SubscribeEvent
+    public void onRenameZone(ZoneLifecycleEvent.RenameZone event) {
+        event.setStatus(rename(event.level(), event.oldName(), event.newName()));
+    }
 
     @SubscribeEvent
     public void onCreateZone(ZoneLifecycleEvent.CreateZone event) {

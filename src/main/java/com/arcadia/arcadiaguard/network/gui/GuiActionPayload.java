@@ -42,7 +42,8 @@ public record GuiActionPayload(
         SET_ZONE_BOUNDS,           // zoneName, x1/y1/z1=nouveau pos1, x2/y2/z2=nouveau pos2
         REQUEST_ZONE_LOGS,         // zoneName, arg1=playerFilter, arg2=actionFilter
         ITEM_BLOCK_ADD,            // zoneName, arg1=itemResourceLocation — S-H20
-        ITEM_BLOCK_REMOVE          // zoneName, arg1=itemResourceLocation — S-H20
+        ITEM_BLOCK_REMOVE,         // zoneName, arg1=itemResourceLocation — S-H20
+        RENAME_ZONE                // zoneName=oldName, arg1=newName
     }
 
     public static final Type<GuiActionPayload> TYPE =
@@ -107,6 +108,9 @@ public record GuiActionPayload(
     }
     public static GuiActionPayload toggleDebug() {
         return new GuiActionPayload(Action.TOGGLE_DEBUG, "", "", "", false, 0,0,0,0,0,0);
+    }
+    public static GuiActionPayload renameZone(String zone, String newName) {
+        return new GuiActionPayload(Action.RENAME_ZONE, zone, newName, "", false, 0,0,0,0,0,0);
     }
     public static GuiActionPayload setParent(String zone, String parentName) {
         return new GuiActionPayload(Action.SET_PARENT, zone, parentName, "", false, 0,0,0,0,0,0);

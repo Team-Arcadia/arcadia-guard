@@ -60,6 +60,27 @@ public abstract class ZoneLifecycleEvent extends Event {
         public String zoneName() { return zoneName; }
     }
 
+    public static final class RenameZone extends ZoneLifecycleEvent {
+        private final String oldName;
+        private final String newName;
+        private com.arcadia.arcadiaguard.zone.ZoneRenamer.Status status =
+            com.arcadia.arcadiaguard.zone.ZoneRenamer.Status.NOT_FOUND;
+
+        public RenameZone(ServerPlayer player, Level level, String oldName, String newName) {
+            super(player, level);
+            this.oldName = oldName;
+            this.newName = newName;
+        }
+
+        public String oldName() { return oldName; }
+        public String newName() { return newName; }
+        public com.arcadia.arcadiaguard.zone.ZoneRenamer.Status status() { return status; }
+        public void setStatus(com.arcadia.arcadiaguard.zone.ZoneRenamer.Status s) {
+            this.status = s;
+            setSuccess(s == com.arcadia.arcadiaguard.zone.ZoneRenamer.Status.OK);
+        }
+    }
+
     public static final class SetFlag extends ZoneLifecycleEvent {
         private final String zoneName;
         private final String flagId;
