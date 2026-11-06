@@ -88,7 +88,7 @@ def prodJarExcludes = [
         'com/arcadia/arcadiaguard/selftest/**',
         'com/arcadia/arcadiaguard/test/**',
         'data/arcadiaguard/gametest/**',
-        'data/arcadiaguard/structure/**'
+        'data/arcadiaguard/structures/**'
 ]
 
 tasks.named('jar', Jar).configure {
