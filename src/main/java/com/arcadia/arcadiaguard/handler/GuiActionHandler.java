@@ -308,7 +308,7 @@ public final class GuiActionHandler {
             return;
         }
         var event = new ZoneLifecycleEvent.RenameZone(player, resolveZoneLevel(player, oldName), oldName, newName);
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         switch (event.status()) {
             case OK -> {
                 ArcadiaGuard.LOGGER.info("[ArcadiaGuard] {} renamed zone '{}' to '{}'",

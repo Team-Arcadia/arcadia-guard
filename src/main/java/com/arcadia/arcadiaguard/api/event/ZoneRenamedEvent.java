@@ -1,13 +1,13 @@
 package com.arcadia.arcadiaguard.api.event;
 
 import com.arcadia.arcadiaguard.api.zone.IZone;
-import net.neoforged.bus.api.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
- * Fired on the NeoForge EventBus after a zone has been successfully renamed
+ * Fired on the Forge EventBus after a zone has been successfully renamed
  * (in-memory state updated, file move scheduled, child zones re-parented).
  *
- * <p>Listeners must be registered on {@code NeoForge.EVENT_BUS}.
+ * <p>Listeners must be registered on {@code MinecraftForge.EVENT_BUS}.
  * This event is fired on the server thread.
  */
 public class ZoneRenamedEvent extends Event {

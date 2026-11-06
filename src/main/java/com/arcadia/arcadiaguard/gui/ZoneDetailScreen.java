@@ -1597,7 +1597,7 @@ public final class ZoneDetailScreen extends Screen {
             if (popup instanceof PopupState.RenameInput && renameBox != null) {
                 String newName = renameBox.getValue().trim();
                 if (!newName.isEmpty() && !newName.equals(detail.name()))
-                    PacketDistributor.sendToServer(GuiActionPayload.renameZone(detail.name(), newName));
+                    PacketHandler.sendToServer(GuiActionPayload.renameZone(detail.name(), newName));
                 renameBox.setValue("");
             } else if (popup instanceof PopupState.WhitelistInput && whitelistBox != null) {
                 String name = whitelistBox.getValue().trim();

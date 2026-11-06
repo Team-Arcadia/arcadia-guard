@@ -278,7 +278,7 @@ public final class ZoneCommands {
         if (server == null) return;
         var payload = new com.arcadia.arcadiaguard.network.gui.ZoneRemovedPayload(oldName);
         for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp, payload);
+            com.arcadia.arcadiaguard.network.PacketHandler.sendToPlayer(sp, payload);
         }
     }
 

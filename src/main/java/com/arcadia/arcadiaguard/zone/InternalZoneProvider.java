@@ -265,7 +265,7 @@ public final class InternalZoneProvider implements ZoneProvider {
         for (ProtectedZone child : r.children()) scheduleWrite(child);
         FlagMixinHelper.invalidateHasZoneCache(dimKey);
         FlagMixinHelper.invalidateFlagCache(dimKey);
-        NeoForge.EVENT_BUS.post(new ZoneRenamedEvent(r.newZone(), r.oldZone().name()));
+        MinecraftForge.EVENT_BUS.post(new ZoneRenamedEvent(r.newZone(), r.oldZone().name()));
         return ZoneRenamer.Status.OK;
     }
 
