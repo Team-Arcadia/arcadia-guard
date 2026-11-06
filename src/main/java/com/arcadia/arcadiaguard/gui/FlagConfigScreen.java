@@ -11,7 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 /** Écran de configuration pour un flag non-booléen (IntFlag ou ListFlag). */
 @OnlyIn(Dist.CLIENT)
@@ -473,18 +473,18 @@ public final class FlagConfigScreen extends Screen {
             value = String.join(",", listEntries);
         }
         if (target == Target.ZONE) {
-            PacketDistributor.sendToServer(GuiActionPayload.setFlagStr(targetName, flagId, value));
+            PacketHandler.sendToServer(GuiActionPayload.setFlagStr(targetName, flagId, value));
         } else {
-            PacketDistributor.sendToServer(GuiActionPayload.setDimFlagStr(targetName, flagId, value));
+            PacketHandler.sendToServer(GuiActionPayload.setDimFlagStr(targetName, flagId, value));
         }
         return true;
     }
 
     private void sendReset() {
         if (target == Target.ZONE) {
-            PacketDistributor.sendToServer(GuiActionPayload.resetFlag(targetName, flagId));
+            PacketHandler.sendToServer(GuiActionPayload.resetFlag(targetName, flagId));
         } else {
-            PacketDistributor.sendToServer(GuiActionPayload.resetDimFlag(targetName, flagId));
+            PacketHandler.sendToServer(GuiActionPayload.resetDimFlag(targetName, flagId));
         }
     }
 

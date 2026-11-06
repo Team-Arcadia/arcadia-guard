@@ -9,18 +9,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientPacketHandlers {
 
     private ClientPacketHandlers() {}
 
-    public static void handleZoneData(ZoneDataPayload payload, IPayloadContext context) {
+    public static void handleZoneData(ZoneDataPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> ClientZoneCache.update(payload.zones()));
     }
 
-    public static void handleOpenGui(OpenGuiPayload payload, IPayloadContext context) {
+    public static void handleOpenGui(OpenGuiPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             Screen current = mc.screen;
@@ -35,7 +35,7 @@ public final class ClientPacketHandlers {
         });
     }
 
-    public static void handleZoneDetail(ZoneDetailPayload payload, IPayloadContext context) {
+    public static void handleZoneDetail(ZoneDetailPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.screen instanceof ZoneDetailScreen zds) {

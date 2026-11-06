@@ -1,24 +1,15 @@
 package com.arcadia.arcadiaguard.network.gui;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import com.arcadia.arcadiaguard.network.NetCodec;
 
 /**
  * S->C : indique au client si l'overlay Jade doit etre masque pour le joueur local.
  */
-public record JadeOverlayBlockedPayload(boolean blocked) implements CustomPacketPayload {
+public record JadeOverlayBlockedPayload(boolean blocked) {
 
-    public static final Type<JadeOverlayBlockedPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "jade_overlay_blocked"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, JadeOverlayBlockedPayload> STREAM_CODEC = StreamCodec.of(
+    public static final NetCodec<JadeOverlayBlockedPayload> STREAM_CODEC = NetCodec.of(
         (buf, p) -> buf.writeBoolean(p.blocked()),
         buf -> new JadeOverlayBlockedPayload(buf.readBoolean())
     );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

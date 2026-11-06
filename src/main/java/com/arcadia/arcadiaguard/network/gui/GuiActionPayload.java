@@ -1,11 +1,6 @@
 package com.arcadia.arcadiaguard.network.gui;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import com.arcadia.arcadiaguard.network.NetCodec;
 
 /**
  * C→S : action générique depuis l'interface graphique.
@@ -19,7 +14,7 @@ public record GuiActionPayload(
     boolean boolVal,
     int x1, int y1, int z1,
     int x2, int y2, int z2
-) implements CustomPacketPayload {
+) {
 
     public enum Action {
         REQUEST_DETAIL,    // zoneName
@@ -45,17 +40,14 @@ public record GuiActionPayload(
         ITEM_BLOCK_REMOVE          // zoneName, arg1=itemResourceLocation — S-H20
     }
 
-    public static final Type<GuiActionPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "gui_action"));
+    private static final NetCodec<String> ZONE_NAME_CODEC =
+        NetCodec.utf8(64);
+    private static final NetCodec<String> ARG1_CODEC =
+        NetCodec.utf8(256);
+    private static final NetCodec<String> ARG2_CODEC =
+        NetCodec.utf8(Short.MAX_VALUE);
 
-    private static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, String> ZONE_NAME_CODEC =
-        ByteBufCodecs.stringUtf8(64);
-    private static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, String> ARG1_CODEC =
-        ByteBufCodecs.stringUtf8(256);
-    private static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, String> ARG2_CODEC =
-        ByteBufCodecs.stringUtf8(Short.MAX_VALUE);
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, GuiActionPayload> STREAM_CODEC = StreamCodec.of(
+    public static final NetCodec<GuiActionPayload> STREAM_CODEC = NetCodec.of(
         (buf, p) -> {
             buf.writeByte(p.action().ordinal());
             ZONE_NAME_CODEC.encode(buf, p.zoneName());
@@ -79,9 +71,6 @@ public record GuiActionPayload(
             return new GuiActionPayload(action, zoneName, arg1, arg2, boolVal, x1, y1, z1, x2, y2, z2);
         }
     );
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 
     // Factories statiques pour chaque action
     public static GuiActionPayload requestDetail(String zone) {

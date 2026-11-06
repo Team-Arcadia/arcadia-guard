@@ -25,7 +25,7 @@ public final class BetterArcheologyHandler implements BlockBreakHandler {
     private static final String ENCHANTMENT_HELPER_CLASS = "net.minecraft.world.item.enchantment.EnchantmentHelper";
     private static final ResourceKey<Enchantment> TUNNELING = ResourceKey.create(
         Registries.ENCHANTMENT,
-        ResourceLocation.fromNamespaceAndPath("betterarcheology", "tunneling")
+        new ResourceLocation("betterarcheology", "tunneling")
     );
 
     private final GuardService guardService;
@@ -55,20 +55,10 @@ public final class BetterArcheologyHandler implements BlockBreakHandler {
                 LOG.warn("[ArcadiaGuard] BetterArchaeology reflection failed: could not get serverLevel (mod API may have changed)");
             return;
         }
-        Object registryAccess = ReflectionHelper.invoke(levelObj, "registryAccess", new Class<?>[0]).orElse(null);
-        if (registryAccess == null) {
-            if (warnedReflection.compareAndSet(false, true))
-                LOG.warn("[ArcadiaGuard] BetterArchaeology reflection failed: could not get registryAccess (mod API may have changed)");
-            return;
-        }
-        Object enchantmentLookup = ReflectionHelper.invoke(registryAccess, "lookupOrThrow", new Class<?>[] { ResourceKey.class }, Registries.ENCHANTMENT).orElse(null);
-        if (enchantmentLookup == null) return;
-        Object tunneling = ReflectionHelper.invoke(enchantmentLookup, "get", new Class<?>[] { ResourceKey.class }, TUNNELING).orElse(null);
-        Object holder = tunneling == null ? null : ReflectionHelper.invoke(tunneling, "orElse", new Class<?>[] { Object.class }, (Object) null).orElse(null);
-        if (holder == null) return;
-
-        Object level = ReflectionHelper.invokeStatic(ENCHANTMENT_HELPER_CLASS, "getItemEnchantmentLevel", new Class<?>[] { holder.getClass(), tool.getClass() }, holder, tool).orElse(0);
-        if (!(level instanceof Number number) || number.intValue() < 1) return;
+        // PORT: 1.20.1 enchantments are static registry entries (no data-driven lookup).
+        Enchantment tunneling = net.minecraft.core.registries.BuiltInRegistries.ENCHANTMENT.get(TUNNELING.location());
+        if (tunneling == null) return;
+        if (net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(tunneling, tool) < 1) return;
 
         BlockPos below = new BlockPos(
             ReflectionHelper.intMethod(pos, "getX"),

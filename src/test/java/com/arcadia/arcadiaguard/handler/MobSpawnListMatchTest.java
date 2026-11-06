@@ -17,7 +17,7 @@ class MobSpawnListMatchTest {
     private static boolean match(List<String> list, String id) throws Exception {
         Method m = EntityEventHandler.class.getDeclaredMethod("matchesMobList", List.class, ResourceLocation.class);
         m.setAccessible(true);
-        return (boolean) m.invoke(null, list, ResourceLocation.parse(id));
+        return (boolean) m.invoke(null, list, new ResourceLocation(id));
     }
 
     @Test

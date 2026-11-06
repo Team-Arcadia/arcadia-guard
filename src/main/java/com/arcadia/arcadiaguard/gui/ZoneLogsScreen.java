@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 /** Liste filtrable des logs d'une zone. */
 @OnlyIn(Dist.CLIENT)
@@ -101,7 +101,7 @@ public final class ZoneLogsScreen extends Screen {
     }
 
     private void applyFilters() {
-        PacketDistributor.sendToServer(GuiActionPayload.requestZoneLogs(
+        PacketHandler.sendToServer(GuiActionPayload.requestZoneLogs(
             data.zoneName(),
             playerFilter.getValue().trim(),
             actionFilter.getValue().trim()));

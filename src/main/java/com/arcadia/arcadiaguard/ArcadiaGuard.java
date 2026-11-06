@@ -17,11 +17,13 @@ import com.arcadia.arcadiaguard.zone.ZoneManager;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -38,9 +40,10 @@ public final class ArcadiaGuard {
     private static volatile boolean testSetupTickResolved;
     private static volatile Method testSetupTickMethod;
 
-    public ArcadiaGuard(IEventBus modBus, ModContainer modContainer) {
+    public ArcadiaGuard() {
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ArcadiaGuardPaths.migrateLegacyFiles();
-        modContainer.registerConfig(ModConfig.Type.COMMON, ArcadiaGuardConfig.SPEC, ArcadiaGuardPaths.commonConfigSpecPath());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ArcadiaGuardConfig.SPEC, ArcadiaGuardPaths.commonConfigSpecPath());
 
         var flagRegistry = new FlagRegistryImpl();
         flagRegistry.registerBuiltins();
@@ -63,9 +66,10 @@ public final class ArcadiaGuard {
         invokeOptionalStatic("com.arcadia.arcadiaguard.selftest.SelfTestCommand", "registerBuiltinScenarios",
             new Class<?>[0]);
         // Tick hook pour /ag testsetup all — depile les creations asynchrones tick par tick.
-        NeoForge.EVENT_BUS.addListener(
-            (net.minecraftforge.event.tick.ServerTickEvent.Post e) ->
-                onOptionalTestSetupTick());
+        MinecraftForge.EVENT_BUS.addListener(
+            (TickEvent.ServerTickEvent e) -> {
+                if (e.phase == TickEvent.Phase.END) onOptionalTestSetupTick();
+            });
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             // Indirect call via FQN string + reflection ensures the client class
@@ -79,11 +83,11 @@ public final class ArcadiaGuard {
             }
         }
 
-        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
-        NeoForge.EVENT_BUS.addListener(this::onServerStarting);
-        NeoForge.EVENT_BUS.addListener(this::onServerStopped);
-        NeoForge.EVENT_BUS.register(zoneManager);
-        handlerRegistry.register(NeoForge.EVENT_BUS);
+        MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
+        MinecraftForge.EVENT_BUS.addListener(this::onServerStopped);
+        MinecraftForge.EVENT_BUS.register(zoneManager);
+        handlerRegistry.register(MinecraftForge.EVENT_BUS);
     }
 
     private void onRegisterCommands(RegisterCommandsEvent event) {

@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 @OnlyIn(Dist.CLIENT)
 public final class ZoneDetailScreen extends Screen {
@@ -238,7 +238,7 @@ public final class ZoneDetailScreen extends Screen {
             b -> {
                 if (popup instanceof PopupState.ParentInput) {
                     String parentName = parentBox.getValue().trim();
-                    PacketDistributor.sendToServer(GuiActionPayload.setParent(detail.name(), parentName));
+                    PacketHandler.sendToServer(GuiActionPayload.setParent(detail.name(), parentName));
                     parentBox.setValue("");
                     popup = new PopupState.None();
                 } else {
@@ -464,7 +464,7 @@ public final class ZoneDetailScreen extends Screen {
             try { v[i] = Integer.parseInt(coordBoxes[i].getValue().trim()); }
             catch (NumberFormatException e) { return; }
         }
-        PacketDistributor.sendToServer(GuiActionPayload.setZoneBounds(
+        PacketHandler.sendToServer(GuiActionPayload.setZoneBounds(
             detail.name(), v[0], v[1], v[2], v[3], v[4], v[5]));
         closeCoordsEditor();
     }
@@ -522,12 +522,12 @@ public final class ZoneDetailScreen extends Screen {
         // Register hitboxes
         final int ebx = enabledBtnX, ebw = enabledBtnW;
         editHit(ebx, gy + 6, ebw, 20, () ->
-            PacketDistributor.sendToServer(GuiActionPayload.toggleZoneEnabled(detail.name(), !detail.enabled())));
+            PacketHandler.sendToServer(GuiActionPayload.toggleZoneEnabled(detail.name(), !detail.enabled())));
         final int evx = eyeBtnX, evw = eyeBtnW;
         hit(evx, gy + 6, evw, 20, () -> { viewZone = !viewZone; updateViewCache(); });
         final int lbx = logsBtnX, lbw = logsBtnW;
         hit(lbx, gy + 6, lbw, 20, () ->
-            PacketDistributor.sendToServer(GuiActionPayload.requestZoneLogs(detail.name(), "", "")));
+            PacketHandler.sendToServer(GuiActionPayload.requestZoneLogs(detail.name(), "", "")));
     }
 
     // ── Colonne 1 : Coordonnées + Stats + Hiérarchie ─────────────────────────────
@@ -569,7 +569,7 @@ public final class ZoneDetailScreen extends Screen {
                 net.minecraft.core.BlockPos p1 = com.arcadia.arcadiaguard.client.ClientZoneCache.wandPos1();
                 net.minecraft.core.BlockPos p2 = com.arcadia.arcadiaguard.client.ClientZoneCache.wandPos2();
                 if (p1 != null && p2 != null) {
-                    PacketDistributor.sendToServer(GuiActionPayload.setZoneBounds(
+                    PacketHandler.sendToServer(GuiActionPayload.setZoneBounds(
                         detail.name(), p1.getX(), p1.getY(), p1.getZ(),
                         p2.getX(), p2.getY(), p2.getZ()));
                 }
@@ -626,7 +626,7 @@ public final class ZoneDetailScreen extends Screen {
         String inhBadge = inh ? Component.translatable("arcadiaguard.gui.zonedetail.inherited").getString() : Component.translatable("arcadiaguard.gui.zonedetail.own").getString();
         g.drawString(font, inhBadge, cx + col1TextW - font.width(inhBadge), cy, inhColor, false);
         editHit(cx, inheritToggleY - 1, col1TextW, 12, () ->
-            PacketDistributor.sendToServer(
+            PacketHandler.sendToServer(
                 GuiActionPayload.toggleInheritDimFlags(detail.name(), !detail.inheritDimFlags())));
 
         GuiTextures.dividerV(g, gx + COL1_W, gy + HEADER_H, GUI_H - HEADER_H - FOOTER_H);
@@ -734,7 +734,7 @@ public final class ZoneDetailScreen extends Screen {
                 boolean isOwn = (f.source() == FlagEntry.SOURCE_ZONE_OWN);
                 if (isOwn) {
                     editHit(rx, iy + 4, 14, FLAG_H - 8, () ->
-                        PacketDistributor.sendToServer(GuiActionPayload.resetFlag(detail.name(), ff.id())));
+                        PacketHandler.sendToServer(GuiActionPayload.resetFlag(detail.name(), ff.id())));
                 }
 
                 if (f.type() == FlagEntry.TYPE_BOOL) {
@@ -755,7 +755,7 @@ public final class ZoneDetailScreen extends Screen {
                     g.drawCenteredString(font, badgeText, bx + 15, iy + 7, badgeColor);
                     // Clic sur badge = override local avec valeur opposee (cree un own flag).
                     editHit(bx, iy + 4, 30, FLAG_H - 8, () ->
-                        PacketDistributor.sendToServer(GuiActionPayload.setFlag(detail.name(), ff.id(), !ff.value())));
+                        PacketHandler.sendToServer(GuiActionPayload.setFlag(detail.name(), ff.id(), !ff.value())));
                 } else {
                     String preview = f.type() == FlagEntry.TYPE_STRING ? stringPreview(f.id(), f.stringValue())
                         : f.type() == FlagEntry.TYPE_INT ? f.stringValue()
@@ -1114,7 +1114,7 @@ public final class ZoneDetailScreen extends Screen {
             int iy = blockedTop + i * ITEM_ROW_H;
             int xbtnX = px + pw - 22;
             if (mx >= xbtnX && mx < xbtnX + 14 && my >= iy && my < iy + ITEM_ROW_H) {
-                net.minecraftforge.network.PacketDistributor.sendToServer(
+                PacketHandler.sendToServer(
                     GuiActionPayload.itemBlockRemove(detail.name(), blockedList.get(i)));
                 return true;
             }
@@ -1131,7 +1131,7 @@ public final class ZoneDetailScreen extends Screen {
             int iy = listTop + (i - itemPickerScroll) * ITEM_ROW_H;
             int addX = px + pw - 22;
             if (mx >= addX && mx < addX + 14 && my >= iy && my < iy + ITEM_ROW_H) {
-                net.minecraftforge.network.PacketDistributor.sendToServer(
+                PacketHandler.sendToServer(
                     GuiActionPayload.itemBlockAdd(detail.name(), results.get(i).toString()));
                 return true;
             }
@@ -1252,7 +1252,7 @@ public final class ZoneDetailScreen extends Screen {
             editHit(rx, iy + 4, 26, MBR_H - 8, () ->
                 // Envoie l'UUID (pas le name) : evite un lookup ProfileCache serveur qui
                 // peut echouer si le joueur n'a jamais ete vu depuis dernier boot.
-                PacketDistributor.sendToServer(GuiActionPayload.whitelistRemove(detail.name(), mm.uuid())));
+                PacketHandler.sendToServer(GuiActionPayload.whitelistRemove(detail.name(), mm.uuid())));
         }
 
         if (members.isEmpty())
@@ -1333,7 +1333,7 @@ public final class ZoneDetailScreen extends Screen {
             popup = new PopupState.None(); return true;
         }
         if (imx >= px + pw - 110 && imx < px + pw - 10 && imy >= py + 54 && imy < py + 76) {
-            PacketDistributor.sendToServer(GuiActionPayload.deleteZone(detail.name()));
+            PacketHandler.sendToServer(GuiActionPayload.deleteZone(detail.name()));
             minecraft.setScreen(parent);
         }
         return true;
@@ -1355,7 +1355,7 @@ public final class ZoneDetailScreen extends Screen {
                 FlagEntry f = filtered.get(idx);
                 if (f.type() == FlagEntry.TYPE_BOOL) {
                     boolean newVal = f.inherited() ? false : !f.value();
-                    PacketDistributor.sendToServer(GuiActionPayload.setFlag(detail.name(), f.id(), newVal));
+                    PacketHandler.sendToServer(GuiActionPayload.setFlag(detail.name(), f.id(), newVal));
                 } else {
                     closePicker();
                     FlagConfigScreen.FlagType t = f.type() == FlagEntry.TYPE_INT
@@ -1543,10 +1543,10 @@ public final class ZoneDetailScreen extends Screen {
             if (popup instanceof PopupState.WhitelistInput && whitelistBox != null) {
                 String name = whitelistBox.getValue().trim();
                 if (!name.isEmpty())
-                    PacketDistributor.sendToServer(GuiActionPayload.whitelistAdd(detail.name(), name));
+                    PacketHandler.sendToServer(GuiActionPayload.whitelistAdd(detail.name(), name));
                 whitelistBox.setValue("");
             } else if (popup instanceof PopupState.ParentInput && parentBox != null) {
-                PacketDistributor.sendToServer(GuiActionPayload.setParent(detail.name(), parentBox.getValue().trim()));
+                PacketHandler.sendToServer(GuiActionPayload.setParent(detail.name(), parentBox.getValue().trim()));
                 parentBox.setValue("");
             }
             popup = new PopupState.None();

@@ -1,16 +1,10 @@
 package com.arcadia.arcadiaguard.network;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 
-public record ZoneDataPayload(List<ClientZoneInfo> zones) implements CustomPacketPayload {
+public record ZoneDataPayload(List<ClientZoneInfo> zones) {
 
     public record ClientZoneInfo(
         String name,
@@ -19,9 +13,9 @@ public record ZoneDataPayload(List<ClientZoneInfo> zones) implements CustomPacke
         boolean dimensional,
         boolean hasParent
     ) {
-        private static final StreamCodec<ByteBuf, String> NAME_C = ByteBufCodecs.stringUtf8(64);
+        private static final NetCodec<String> NAME_C = NetCodec.utf8(64);
 
-        static final StreamCodec<ByteBuf, ClientZoneInfo> STREAM_CODEC = StreamCodec.of(
+        static final NetCodec<ClientZoneInfo> STREAM_CODEC = NetCodec.of(
             (buf, info) -> {
                 NAME_C.encode(buf, info.name);
                 buf.writeInt(info.minX); buf.writeInt(info.minY); buf.writeInt(info.minZ);
@@ -39,11 +33,8 @@ public record ZoneDataPayload(List<ClientZoneInfo> zones) implements CustomPacke
         );
     }
 
-    public static final Type<ZoneDataPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "zone_data"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ZoneDataPayload> STREAM_CODEC =
-        StreamCodec.of(
+    public static final NetCodec<ZoneDataPayload> STREAM_CODEC =
+        NetCodec.of(
             (buf, payload) -> {
                 buf.writeInt(payload.zones().size());
                 for (ClientZoneInfo info : payload.zones()) {
@@ -62,6 +53,4 @@ public record ZoneDataPayload(List<ClientZoneInfo> zones) implements CustomPacke
             }
         );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

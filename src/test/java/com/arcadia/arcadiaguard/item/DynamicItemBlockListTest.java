@@ -18,9 +18,9 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class DynamicItemBlockListTest {
 
-    private static final ResourceLocation TNT = ResourceLocation.parse("minecraft:tnt");
-    private static final ResourceLocation STICK = ResourceLocation.parse("minecraft:stick");
-    private static final ResourceLocation CUSTOM = ResourceLocation.parse("arcadia:wand");
+    private static final ResourceLocation TNT = new ResourceLocation("minecraft:tnt");
+    private static final ResourceLocation STICK = new ResourceLocation("minecraft:stick");
+    private static final ResourceLocation CUSTOM = new ResourceLocation("arcadia:wand");
 
     @Test
     void load_missingFile_noThrow(@TempDir Path tmp) {
@@ -97,9 +97,9 @@ class DynamicItemBlockListTest {
         // Meme namespace pour garantir l'ordre alphabetique par path (ResourceLocation
         // compareTo compare d'abord namespace puis path).
         var list = new DynamicItemBlockList(tmp.resolve("bl.json"));
-        list.add(ResourceLocation.parse("minecraft:zzz"));
-        list.add(ResourceLocation.parse("minecraft:aaa"));
-        list.add(ResourceLocation.parse("minecraft:mmm"));
+        list.add(new ResourceLocation("minecraft:zzz"));
+        list.add(new ResourceLocation("minecraft:aaa"));
+        list.add(new ResourceLocation("minecraft:mmm"));
         var result = list.list();
         assertEquals("minecraft:aaa", result.get(0).toString());
         assertEquals("minecraft:mmm", result.get(1).toString());

@@ -7,7 +7,6 @@ import com.arcadia.arcadiaguard.zone.ProtectedZone;
 import java.util.Optional;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
 
 /**
  * Blocks parkour actions (ParCool mod) inside protected zones when PARCOOL_ACTIONS=deny.
@@ -45,7 +44,7 @@ public final class ParcoolHandler implements DynamicEventHandler {
         if (zoneOpt.isPresent() && guardService.isZoneMember(player, zoneOpt.get())) return;
         if (!guardService.isZoneDenying(player.serverLevel(), pos, BuiltinFlags.PARCOOL_ACTIONS)) return;
 
-        if (event instanceof ICancellableEvent c) c.setCanceled(true);
+        if (event.isCancelable()) event.setCanceled(true);
         // Message gere une fois par PlayerEventHandler (throttle MSG_THROTTLE_MS, via chat).
         // Ici pas d'actionbar car l'event fire chaque tick -> message permanent sinon.
     }

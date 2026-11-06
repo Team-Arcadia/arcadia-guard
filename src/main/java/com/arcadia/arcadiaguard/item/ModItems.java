@@ -6,21 +6,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredHolder;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public final class ModItems {
 
     private static final DeferredRegister<Item> ITEMS =
-        DeferredRegister.create(Registries.ITEM, ArcadiaGuard.MOD_ID);
+        DeferredRegister.create(ForgeRegistries.ITEMS, ArcadiaGuard.MOD_ID);
 
     private static final DeferredRegister<CreativeModeTab> TABS =
         DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArcadiaGuard.MOD_ID);
 
-    public static final DeferredHolder<Item, WandItem> ZONE_EDITOR =
+    public static final RegistryObject<WandItem> ZONE_EDITOR =
         ITEMS.register("zone_editor", () -> new WandItem(new Item.Properties().stacksTo(1)));
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB =
+    public static final RegistryObject<CreativeModeTab> TAB =
         TABS.register("arcadiaguard", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.arcadiaguard"))
             .icon(() -> ZONE_EDITOR.get().getDefaultInstance())

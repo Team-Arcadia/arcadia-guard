@@ -23,7 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 public final class PlayerEventHandler
         implements HandlerRegistry.RightClickBlockHandler, HandlerRegistry.RightClickItemHandler {
@@ -128,8 +128,9 @@ public final class PlayerEventHandler
      * Runs every {@link #ZONE_CHECK_INTERVAL} ticks to detect boundary crossings
      * and enforce ENTRY/EXIT flags.
      */
-    public void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player instanceof ServerPlayer player)) return;
 
         UUID id = player.getUUID();
         if (player.isSpectator() && !appliedGameMode.containsKey(id)) return;
@@ -216,7 +217,7 @@ public final class PlayerEventHandler
         Boolean wasBlocked = playerParcoolBlocked.get(id);
         if (wasBlocked == null || wasBlocked != parcoolBlocked) {
             playerParcoolBlocked.put(id, parcoolBlocked);
-            net.minecraftforge.network.PacketDistributor.sendToPlayer(
+            com.arcadia.arcadiaguard.network.PacketHandler.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.ParcoolBlockedPayload(parcoolBlocked));
             // Message one-shot via CHAT (pas actionbar — actionbar MC 1.21 avec FancyMenu
@@ -245,7 +246,7 @@ public final class PlayerEventHandler
         Boolean wasEmoteBlocked = playerEmoteBlocked.get(id);
         if (wasEmoteBlocked == null || wasEmoteBlocked != emoteBlocked) {
             playerEmoteBlocked.put(id, emoteBlocked);
-            net.minecraftforge.network.PacketDistributor.sendToPlayer(
+            com.arcadia.arcadiaguard.network.PacketHandler.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.EmoteBlockedPayload(emoteBlocked));
             if (emoteBlocked) {
@@ -266,7 +267,7 @@ public final class PlayerEventHandler
         Boolean wasJadeOverlayBlocked = playerJadeOverlayBlocked.get(id);
         if (wasJadeOverlayBlocked == null || wasJadeOverlayBlocked != jadeOverlayBlocked) {
             playerJadeOverlayBlocked.put(id, jadeOverlayBlocked);
-            net.minecraftforge.network.PacketDistributor.sendToPlayer(
+            com.arcadia.arcadiaguard.network.PacketHandler.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.JadeOverlayBlockedPayload(jadeOverlayBlocked));
         }
@@ -400,7 +401,7 @@ public final class PlayerEventHandler
      * Cet attribut est utilise par l'affixe Apotheosis 'unbound' (chestplate mythic).
      * Cache le Holder via lookup statique pour eviter les allocations en hot path.
      */
-    private static volatile net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> CREATIVE_FLIGHT_ATTR;
+    private static volatile net.minecraft.world.entity.ai.attributes.Attribute CREATIVE_FLIGHT_ATTR;
     private static volatile boolean CREATIVE_FLIGHT_MISSING = false;
 
     private static boolean hasCreativeFlightAttribute(ServerPlayer player) {
@@ -408,8 +409,10 @@ public final class PlayerEventHandler
         var holder = CREATIVE_FLIGHT_ATTR;
         if (holder == null) {
             try {
-                var rl = net.minecraft.resources.ResourceLocation.parse("neoforge:creative_flight");
-                holder = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getHolder(rl).orElse(null);
+                // PORT: on Forge 1.20.1 the creative-flight attribute comes from Apothic Attributes
+                // ("attributeslib:creative_flight"); unverified id, missing -> feature inactive.
+                var rl = new net.minecraft.resources.ResourceLocation("attributeslib:creative_flight");
+                holder = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getOptional(rl).orElse(null);
                 if (holder == null) { CREATIVE_FLIGHT_MISSING = true; return false; }
                 CREATIVE_FLIGHT_ATTR = holder;
             } catch (Throwable t) { CREATIVE_FLIGHT_MISSING = true; return false; }
@@ -419,8 +422,8 @@ public final class PlayerEventHandler
     }
 
     /** ID du modifier negatif qu'on applique pour annuler neoforge:creative_flight en zone. */
-    private static final net.minecraft.resources.ResourceLocation APOTH_FLY_MODIFIER_ID =
-        net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("arcadiaguard", "apoth_fly_block");
+    private static final java.util.UUID APOTH_FLY_MODIFIER_ID =
+        java.util.UUID.nameUUIDFromBytes("arcadiaguard:apoth_fly_block".getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
     /**
      * Applique ou retire un AttributeModifier negatif sur neoforge:creative_flight pour
@@ -441,7 +444,7 @@ public final class PlayerEventHandler
         boolean has = inst.getModifier(APOTH_FLY_MODIFIER_ID) != null;
         if (active && !has) {
             inst.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
-                APOTH_FLY_MODIFIER_ID, -1000.0D,
+                APOTH_FLY_MODIFIER_ID, "arcadiaguard:apoth_fly_block", -1000.0D,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
         } else if (!active && has) {
             inst.removeModifier(APOTH_FLY_MODIFIER_ID);

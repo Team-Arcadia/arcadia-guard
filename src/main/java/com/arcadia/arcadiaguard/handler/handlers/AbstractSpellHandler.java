@@ -13,7 +13,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
 
 /**
  * Template method base for mod spell-cast handlers.
@@ -162,6 +161,6 @@ public abstract class AbstractSpellHandler implements DynamicEventHandler {
     private static volatile boolean DEBUG_LOGGED = false;
 
     private static void cancel(Event event) {
-        if (event instanceof ICancellableEvent c) c.setCanceled(true);
+        if (event.isCancelable()) event.setCanceled(true);
     }
 }

@@ -9,7 +9,7 @@ import java.util.Set;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 
 public final class IronsSpellbooksHandler extends AbstractSpellHandler {
 
@@ -27,7 +27,7 @@ public final class IronsSpellbooksHandler extends AbstractSpellHandler {
      * whenever a flag is modified. Called from HandlerRegistry during init.
      */
     public static void registerEventListeners() {
-        NeoForge.EVENT_BUS.register(IronsSpellbooksHandler.class);
+        MinecraftForge.EVENT_BUS.register(IronsSpellbooksHandler.class);
     }
 
     /** H-P7: Clears the blocked-spell cache when any zone flag changes. */

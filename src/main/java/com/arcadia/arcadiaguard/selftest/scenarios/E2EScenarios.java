@@ -40,10 +40,10 @@ public final class E2EScenarios {
             // les flags MOB_SPAWN/MONSTER_SPAWN/ANIMAL_SPAWN. On post l'event soi-meme
             // et on verifie isSpawnCancelled() (pas isCanceled() qui correspond a un
             // veto plus fort).
-            var event = new net.minecraftforge.event.entity.living.FinalizeSpawnEvent(
+            var event = new net.minecraftforge.event.entity.living.MobSpawnEvent.FinalizeSpawn(
                 zombie, ctx.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
-            net.minecraftforge.common.NeoForge.EVENT_BUS.post(event);
+                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null, null);
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
             if (event.isSpawnCancelled() || event.isCanceled()) {
                 return ScenarioResult.pass(id(), "spawn cancel par AG", ms(start));
             }
@@ -64,10 +64,10 @@ public final class E2EScenarios {
             BlockPos pos = ctx.player().blockPosition().offset(3, 0, 0);
             cow.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
 
-            var event = new net.minecraftforge.event.entity.living.FinalizeSpawnEvent(
+            var event = new net.minecraftforge.event.entity.living.MobSpawnEvent.FinalizeSpawn(
                 cow, ctx.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
-            net.minecraftforge.common.NeoForge.EVENT_BUS.post(event);
+                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null, null);
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
             if (event.isSpawnCancelled() || event.isCanceled()) {
                 return ScenarioResult.pass(id(), ms(start));
             }

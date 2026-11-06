@@ -1,25 +1,20 @@
 package com.arcadia.arcadiaguard.network.gui;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
+import com.arcadia.arcadiaguard.network.NetCodec;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 
 /** S→C : logs d'audit pour une zone, filtrés. */
-public record ZoneLogsPayload(String zoneName, List<LogLine> entries) implements CustomPacketPayload {
+public record ZoneLogsPayload(String zoneName, List<LogLine> entries) {
 
     public record LogLine(String timestamp, String player, String action, String pos) {
-        private static final StreamCodec<ByteBuf, String> TS_C     = ByteBufCodecs.stringUtf8(32);
-        private static final StreamCodec<ByteBuf, String> PLAYER_C = ByteBufCodecs.stringUtf8(16);
-        private static final StreamCodec<ByteBuf, String> ACTION_C = ByteBufCodecs.stringUtf8(128);
-        private static final StreamCodec<ByteBuf, String> POS_C    = ByteBufCodecs.stringUtf8(48);
+        private static final NetCodec<String> TS_C     = NetCodec.utf8(32);
+        private static final NetCodec<String> PLAYER_C = NetCodec.utf8(16);
+        private static final NetCodec<String> ACTION_C = NetCodec.utf8(128);
+        private static final NetCodec<String> POS_C    = NetCodec.utf8(48);
 
-        static final StreamCodec<ByteBuf, LogLine> CODEC = StreamCodec.of(
+        static final NetCodec<LogLine> CODEC = NetCodec.of(
             (buf, l) -> {
                 TS_C.encode(buf, l.timestamp);
                 PLAYER_C.encode(buf, l.player);
@@ -35,12 +30,9 @@ public record ZoneLogsPayload(String zoneName, List<LogLine> entries) implements
         );
     }
 
-    public static final Type<ZoneLogsPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "zone_logs"));
+    private static final NetCodec<String> ZONE_NAME_C = NetCodec.utf8(64);
 
-    private static final StreamCodec<ByteBuf, String> ZONE_NAME_C = ByteBufCodecs.stringUtf8(64);
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ZoneLogsPayload> STREAM_CODEC = StreamCodec.of(
+    public static final NetCodec<ZoneLogsPayload> STREAM_CODEC = NetCodec.of(
         (buf, p) -> {
             ZONE_NAME_C.encode(buf, p.zoneName());
             buf.writeInt(p.entries().size());
@@ -56,6 +48,4 @@ public record ZoneLogsPayload(String zoneName, List<LogLine> entries) implements
         }
     );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

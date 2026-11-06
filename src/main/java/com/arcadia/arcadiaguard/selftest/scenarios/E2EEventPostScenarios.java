@@ -14,8 +14,8 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.NeoForge;
-import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 
@@ -39,10 +39,10 @@ public final class E2EEventPostScenarios {
             if (v == null) return ScenarioResult.fail(id(), "create() null", ms(s));
             BlockPos pos = ctx.player().blockPosition().offset(3, 0, 0);
             v.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
-            var event = new FinalizeSpawnEvent(v, ctx.level(),
+            var event = new MobSpawnEvent.FinalizeSpawn(v, ctx.level(),
                 pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
-            NeoForge.EVENT_BUS.post(event);
+                ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null, null);
+            MinecraftForge.EVENT_BUS.post(event);
             return (event.isSpawnCancelled() || event.isCanceled())
                 ? ScenarioResult.pass(id(), ms(s))
                 : ScenarioResult.fail(id(), "ni isSpawnCancelled ni isCanceled", ms(s));
@@ -72,7 +72,7 @@ public final class E2EEventPostScenarios {
         var affected = new ArrayList<>(positions);
         var entities = new ArrayList<Entity>();
         var event = new ExplosionEvent.Detonate((Level) ctx.level(), explosion, entities);
-        NeoForge.EVENT_BUS.post(event);
+        MinecraftForge.EVENT_BUS.post(event);
         long elapsed = ms(s);
         // Cleanup
         for (var e : savedStates.entrySet()) ctx.restoreBlock(e.getKey(), e.getValue());
@@ -117,7 +117,7 @@ public final class E2EEventPostScenarios {
             ctx.setBlock(pos, Blocks.FARMLAND);
             BlockState state = ctx.level().getBlockState(pos);
             var event = new BlockEvent.FarmlandTrampleEvent(ctx.level(), pos, state, 1.0f, ctx.player());
-            NeoForge.EVENT_BUS.post(event);
+            MinecraftForge.EVENT_BUS.post(event);
             ctx.restoreBlock(pos, snap);
             return event.isCanceled()
                 ? ScenarioResult.pass(id(), ms(s))

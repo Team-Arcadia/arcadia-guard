@@ -26,9 +26,9 @@ import net.minecraft.resources.ResourceLocation;
 public final class GuiTextures {
     private GuiTextures() {}
 
-    public static final ResourceLocation ATLAS  = ResourceLocation.fromNamespaceAndPath("arcadiaguard", "textures/gui/cartographia_atlas.png");
-    public static final ResourceLocation ICONS  = ResourceLocation.fromNamespaceAndPath("arcadiaguard", "textures/gui/cartographia_icons.png");
-    public static final ResourceLocation STATUS = ResourceLocation.fromNamespaceAndPath("arcadiaguard", "textures/gui/cartographia_status.png");
+    public static final ResourceLocation ATLAS  = new ResourceLocation("arcadiaguard", "textures/gui/cartographia_atlas.png");
+    public static final ResourceLocation ICONS  = new ResourceLocation("arcadiaguard", "textures/gui/cartographia_icons.png");
+    public static final ResourceLocation STATUS = new ResourceLocation("arcadiaguard", "textures/gui/cartographia_status.png");
 
     /** 9-slice du cadre principal à partir de l'atlas. */
     public static void drawFrame(GuiGraphics g, int x, int y, int w, int h) {

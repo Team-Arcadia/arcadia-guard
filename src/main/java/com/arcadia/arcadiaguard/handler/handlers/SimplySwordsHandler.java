@@ -76,7 +76,7 @@ public final class SimplySwordsHandler implements RightClickItemHandler {
     }
 
     private static ResourceLocation itemKey(ItemStack stack) {
-        ResourceKey<Item> k = stack.getItemHolder().getKey();
+        ResourceKey<Item> k = stack.getItemHolder().unwrapKey().orElse(null);
         return k != null ? k.location() : null;
     }
 }

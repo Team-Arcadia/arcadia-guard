@@ -1,10 +1,6 @@
 package com.arcadia.arcadiaguard.network.gui;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import com.arcadia.arcadiaguard.network.NetCodec;
 
 /**
  * S->C : indique au client si les emotes du joueur local sont bloquees
@@ -12,16 +8,11 @@ import net.minecraft.resources.ResourceLocation;
  * depend d'une config externe (validateEmote) qui peut etre desactivee,
  * donc on double avec un verifier CLIENT-side authoritative.
  */
-public record EmoteBlockedPayload(boolean blocked) implements CustomPacketPayload {
+public record EmoteBlockedPayload(boolean blocked) {
 
-    public static final Type<EmoteBlockedPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "emote_blocked"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, EmoteBlockedPayload> STREAM_CODEC = StreamCodec.of(
+    public static final NetCodec<EmoteBlockedPayload> STREAM_CODEC = NetCodec.of(
         (buf, p) -> buf.writeBoolean(p.blocked()),
         buf -> new EmoteBlockedPayload(buf.readBoolean())
     );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

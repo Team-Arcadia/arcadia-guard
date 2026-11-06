@@ -8,7 +8,6 @@ import com.arcadia.arcadiaguard.handler.HandlerRegistry.RightClickItemHandler;
 import com.arcadia.arcadiaguard.util.ReflectionHelper;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -124,15 +123,13 @@ public final class ArsNouveauHandler extends AbstractSpellHandler
 
     private BlockPos warpScrollDestination(ItemStack stack) {
         try {
-            Object componentType = ReflectionHelper.field(
-                "com.hollingsworth.arsnouveau.setup.registry.DataComponentRegistry", "WARP_SCROLL").orElse(null);
-            if (!(componentType instanceof DataComponentType<?> type)) return null;
-            Object warpScrollData = stack.get(type);
+            // PORT-TODO: Ars Nouveau 1.20.1 has no data components; assumed API
+            // WarpScroll.WarpScrollData.get(ItemStack) -> isValid()/getPos() (unverified).
+            Class<?> dataCls = Class.forName("com.hollingsworth.arsnouveau.common.items.WarpScroll$WarpScrollData");
+            Object warpScrollData = dataCls.getMethod("get", ItemStack.class).invoke(null, stack);
             if (warpScrollData == null) return null;
             if (!Boolean.TRUE.equals(ReflectionHelper.invoke(warpScrollData, "isValid", new Class<?>[0]).orElse(false))) return null;
-            Object optionalPos = ReflectionHelper.invoke(warpScrollData, "pos", new Class<?>[0]).orElse(null);
-            if (optionalPos == null) return null;
-            Object posValue = ReflectionHelper.invoke(optionalPos, "get", new Class<?>[0]).orElse(null);
+            Object posValue = ReflectionHelper.invoke(warpScrollData, "getPos", new Class<?>[0]).orElse(null);
             return posValue instanceof BlockPos bp ? bp : null;
         } catch (Throwable t) {
             if (!WARN_WARP_LOGGED) {
@@ -147,7 +144,7 @@ public final class ArsNouveauHandler extends AbstractSpellHandler
     private static volatile boolean WARN_WARP_LOGGED = false;
 
     private static ResourceLocation itemKey(ItemStack stack) {
-        ResourceKey<Item> k = stack.getItemHolder().getKey();
+        ResourceKey<Item> k = stack.getItemHolder().unwrapKey().orElse(null);
         return k != null ? k.location() : null;
     }
 }

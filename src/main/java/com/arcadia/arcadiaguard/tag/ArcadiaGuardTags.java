@@ -9,15 +9,15 @@ public final class ArcadiaGuardTags {
 
     /** Vanilla books + enchanted/writable variants. Override via datapack. */
     public static final TagKey<Item> SPAWN_BANNED_BOOKS =
-        ItemTags.create(ResourceLocation.fromNamespaceAndPath("arcadiaguard", "spawn_banned_books"));
+        ItemTags.create(new ResourceLocation("arcadiaguard", "spawn_banned_books"));
 
     /** Vanilla lead + Apothic Enchanting ender leads. Override via datapack. */
     public static final TagKey<Item> BANNED_LEADS =
-        ItemTags.create(ResourceLocation.fromNamespaceAndPath("arcadiaguard", "banned_leads"));
+        ItemTags.create(new ResourceLocation("arcadiaguard", "banned_leads"));
 
     /** All vanilla spawn eggs (#minecraft:spawn_eggs). Override via datapack. */
     public static final TagKey<Item> BANNED_SPAWN_EGGS =
-        ItemTags.create(ResourceLocation.fromNamespaceAndPath("arcadiaguard", "banned_spawn_eggs"));
+        ItemTags.create(new ResourceLocation("arcadiaguard", "banned_spawn_eggs"));
 
     private ArcadiaGuardTags() {}
 }

@@ -33,8 +33,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.common.NeoForge;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.handling.IPayloadContext;
+import com.arcadia.arcadiaguard.network.PacketHandler;
+import net.minecraftforge.network.NetworkEvent;
 
 /** Traite toutes les actions C→S émises depuis le GUI de gestion des zones. */
 public final class GuiActionHandler {
@@ -87,9 +87,9 @@ public final class GuiActionHandler {
             || action == GuiActionPayload.Action.SET_DIM_FLAG_STR;
     }
 
-    public static void handle(GuiActionPayload payload, IPayloadContext context) {
+    public static void handle(GuiActionPayload payload, NetworkEvent.Context context) {
         // C1: Rate-limit packets C→S before enqueuing work on main thread.
-        if (context.player() instanceof ServerPlayer sp) {
+        if (context.getSender() instanceof ServerPlayer sp) {
             UUID uuid = sp.getUUID();
             if (RATE_LIMITERS.size() > 500) {
                 RATE_LIMITERS.clear();
@@ -108,7 +108,7 @@ public final class GuiActionHandler {
             return;
         }
         context.enqueueWork(() -> {
-            if (!(context.player() instanceof ServerPlayer player)) return;
+            if (!(context.getSender() instanceof ServerPlayer player)) return;
 
             switch (payload.action()) {
                 case REQUEST_DETAIL -> {
@@ -225,7 +225,7 @@ public final class GuiActionHandler {
                 for (var e : entries) {
                     lines.add(new ZoneLogsPayload.LogLine(e.timestamp(), e.player(), e.action(), e.pos()));
                 }
-                PacketDistributor.sendToPlayer(player, new ZoneLogsPayload(p.zoneName(), lines));
+                PacketHandler.sendToPlayer(player, new ZoneLogsPayload(p.zoneName(), lines));
             })
         );
     }
@@ -287,7 +287,7 @@ public final class GuiActionHandler {
             // sinon une zone "Voir : ON" reste dessinee apres suppression.
             var payload = new com.arcadia.arcadiaguard.network.gui.ZoneRemovedPayload(zoneName);
             for (ServerPlayer sp : player.getServer().getPlayerList().getPlayers()) {
-                net.minecraftforge.network.PacketDistributor.sendToPlayer(sp, payload);
+                PacketHandler.sendToPlayer(sp, payload);
             }
             ArcadiaGuard.zoneManager().sendRefreshedList(player);
         } else {
@@ -613,7 +613,7 @@ public final class GuiActionHandler {
                 boolVal, configured, desc, type, strVal));
         }
         boolean viewOnly = ZonePermission.isViewOnly(player.createCommandSourceStack());
-        PacketDistributor.sendToPlayer(player, new DimFlagsPayload(dimKey, flags, viewOnly));
+        PacketHandler.sendToPlayer(player, new DimFlagsPayload(dimKey, flags, viewOnly));
     }
 
     private static void saveDimFlags() {

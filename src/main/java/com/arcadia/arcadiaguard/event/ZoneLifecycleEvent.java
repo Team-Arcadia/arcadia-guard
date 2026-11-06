@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * Events fired on NeoForge.EVENT_BUS when zone lifecycle operations are requested.
+ * Events fired on MinecraftForge.EVENT_BUS when zone lifecycle operations are requested.
  * Events are synchronous: the result field is set by the ZoneManager subscriber
  * before control returns to the poster.
  */

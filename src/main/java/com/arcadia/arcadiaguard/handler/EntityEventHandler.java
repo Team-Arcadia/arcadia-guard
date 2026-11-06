@@ -20,12 +20,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 
 public final class EntityEventHandler {
 
@@ -170,7 +170,7 @@ public final class EntityEventHandler {
      * <p>Run a part de onMobSpawn (priorite NORMAL) pour ne pas interferer avec notre
      * propre logique de blocage.
      */
-    public void onFinalizeSpawnDiscardCleanup(FinalizeSpawnEvent event) {
+    public void onFinalizeSpawnDiscardCleanup(MobSpawnEvent.FinalizeSpawn event) {
         // En mode debug, on laisse les warnings 'marked as removed' passer pour visibilite.
         if (com.arcadia.arcadiaguard.config.ArcadiaGuardConfig.DEBUG.get()) return;
         if (event.isSpawnCancelled()) return;
@@ -180,7 +180,7 @@ public final class EntityEventHandler {
         }
     }
 
-    public void onMobSpawn(FinalizeSpawnEvent event) {
+    public void onMobSpawn(MobSpawnEvent.FinalizeSpawn event) {
         if (!(event.getLevel() instanceof Level level)) return;
         if (level.isClientSide()) return;
         Mob entity = event.getEntity();
@@ -412,7 +412,7 @@ public final class EntityEventHandler {
      * closing the damage window both for zone entry (via frontier crossing, no JoinLevelEvent)
      * and for animals whose initial join-level effect expires.
      */
-    public void onEntityTick(EntityTickEvent.Post event) {
+    public void onEntityTick(LivingEvent.LivingTickEvent event) {
         if (!(event.getEntity() instanceof Animal animal)) return;
         Level level = animal.level();
         if (level.isClientSide()) return;

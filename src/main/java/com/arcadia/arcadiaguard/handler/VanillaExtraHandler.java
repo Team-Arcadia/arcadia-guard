@@ -19,7 +19,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Handlers pour les flags vanilla additionnels (parite YAWP) :
@@ -35,8 +35,9 @@ public final class VanillaExtraHandler {
     }
 
     /** Bloque l'elytra dans les zones avec USE_ELYTRA=deny. Tick toutes les 10 ticks via PlayerEventHandler. */
-    public void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player instanceof ServerPlayer player)) return;
         if (!player.isFallFlying()) return;
         if (player.tickCount % 10 != 0) return;
         Level level = player.level();

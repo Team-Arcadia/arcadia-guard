@@ -15,11 +15,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Gere le flag CARRYON : bloque le mod Carry On (ramasser/transporter blocs + entites).
@@ -57,10 +56,10 @@ public final class CarryOnHandler {
             ArcadiaGuard.debugInfo("[ArcadiaGuard] Carry On non detecte, flag CARRYON inactif.");
             return;
         }
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true,
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true,
             PlayerInteractEvent.RightClickBlock.class, this::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false,
-            PlayerTickEvent.Post.class, this::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false,
+            TickEvent.PlayerTickEvent.class, this::onPlayerTick);
         // Event custom : on passe la classe concrete EntityPickupEvent (NeoForge refuse Event.class abstract).
         try {
             Class<?> pickupCls = Class.forName(PICKUP_EVENT_CLS);
@@ -76,7 +75,7 @@ public final class CarryOnHandler {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void registerPickupListener(Class<?> pickupCls) {
         Class raw = pickupCls;
-        NeoForge.EVENT_BUS.addListener(raw, (java.util.function.Consumer) (Object event) -> handleCustomPickupEvent(event));
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, raw, (java.util.function.Consumer) (Object event) -> handleCustomPickupEvent(event));
     }
 
     /** Cancel RightClickBlock si player sneak + empty hand en zone deny (pattern trigger Carry On). */
@@ -101,7 +100,7 @@ public final class CarryOnHandler {
 
     /** Handler du custom EntityPickupEvent de Carry On : cancel si deny zone. */
     private void handleCustomPickupEvent(Object event) {
-        if (!(event instanceof ICancellableEvent cancellable)) return;
+        if (!(event instanceof net.minecraftforge.eventbus.api.Event cancellable) || !cancellable.isCancelable()) return;
         ServerPlayer player = (ServerPlayer) ReflectionHelper.field(event, "player").orElse(null);
         if (player == null) return;
         Entity target = ReflectionHelper.field(event, "target")
@@ -115,8 +114,9 @@ public final class CarryOnHandler {
     }
 
     /** Force-drop si le joueur porte deja qqch en entrant dans une zone deny. Check toutes les 20 ticks. */
-    public void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (!(event.player instanceof ServerPlayer player)) return;
         if (player.tickCount % 20 != 0) return;
         if (player.level().isClientSide()) return;
         if (guard.shouldBypass(player)) return;

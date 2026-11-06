@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 @OnlyIn(Dist.CLIENT)
 public final class ZoneCreateScreen extends Screen {
@@ -73,7 +73,7 @@ public final class ZoneCreateScreen extends Screen {
             errorMsg = Component.translatable("arcadiaguard.gui.zonecreate.error.empty").getString();
             return;
         }
-        PacketDistributor.sendToServer(GuiActionPayload.createZone(
+        PacketHandler.sendToServer(GuiActionPayload.createZone(
             name,
             pos1.getX(), pos1.getY(), pos1.getZ(),
             pos2.getX(), pos2.getY(), pos2.getZ()

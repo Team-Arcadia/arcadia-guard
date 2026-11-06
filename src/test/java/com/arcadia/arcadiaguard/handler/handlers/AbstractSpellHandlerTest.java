@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +54,7 @@ class AbstractSpellHandlerTest {
 
     @BeforeAll
     static void bootstrap() throws Exception {
-        Class<?> lmlClass = Class.forName("net.neoforged.fml.loading.LoadingModList");
+        Class<?> lmlClass = Class.forName("net.minecraftforge.fml.loading.LoadingModList");
         java.lang.reflect.Method ofMethod = lmlClass.getMethod(
             "of", List.class, List.class, List.class, List.class, java.util.Map.class
         );
@@ -295,7 +295,8 @@ class AbstractSpellHandlerTest {
     private static final class TestEvent extends Event {}
 
     /** Event annulable — pour vérifier que AbstractSpellHandler appelle setCanceled(true). */
-    private static final class TestCancellableEvent extends Event implements ICancellableEvent {
+    @Cancelable
+    public static final class TestCancellableEvent extends Event {
         private boolean canceled = false;
         @Override public boolean isCanceled() { return canceled; }
         @Override public void setCanceled(boolean c) { this.canceled = c; }

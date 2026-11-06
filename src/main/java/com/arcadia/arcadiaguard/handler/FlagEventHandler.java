@@ -53,12 +53,11 @@ import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.ItemEntityPickupEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
-import net.minecraftforge.event.level.block.CropGrowEvent;
-import net.minecraftforge.event.level.BlockGrowFeatureEvent;
+import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 
 /** Catch-all handler for flags that don't fit elsewhere. */
 public final class FlagEventHandler {
@@ -290,11 +289,11 @@ public final class FlagEventHandler {
         }
     }
 
-    public void onItemPickup(ItemEntityPickupEvent.Pre event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+    public void onItemPickup(EntityItemPickupEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (guard.shouldBypass(player)) return;
         if (guard.isZoneDenying(player.level(), player.blockPosition(), BuiltinFlags.ITEM_PICKUP)) {
-            event.setCanPickup(net.minecraftforge.common.util.TriState.FALSE);
+            event.setCanceled(true);
         }
     }
 
@@ -333,9 +332,9 @@ public final class FlagEventHandler {
 
     // ── Croissance & propagation ────────────────────────────────────────────────
 
-    public void onCropGrow(CropGrowEvent.Pre event) {
+    public void onCropGrow(BlockEvent.CropGrowEvent.Pre event) {
         if (guard.isZoneDenying((Level) event.getLevel(), event.getPos(), BuiltinFlags.CROP_GROWTH)) {
-            event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
     }
 
@@ -343,7 +342,7 @@ public final class FlagEventHandler {
         if (!(event.getLevel() instanceof Level level)) return;
         if (level.isClientSide()) return;
         BlockPos pos = event.getPos();
-        Block block = event.getState().getBlock();
+        Block block = event.getBlock().getBlock();
         // R4 : le bonemeal sur un sapling doit respecter TREE_GROWTH, pas CROP_GROWTH.
         if (block instanceof SaplingBlock) {
             if (guard.isZoneDenying(level, pos, BuiltinFlags.TREE_GROWTH)) {
@@ -370,10 +369,10 @@ public final class FlagEventHandler {
         }
     }
 
-    public void onTreeGrow(BlockGrowFeatureEvent event) {
-        Level level = (Level) event.getLevel();
+    public void onTreeGrow(SaplingGrowTreeEvent event) {
+        if (!(event.getLevel() instanceof Level level)) return;
         if (guard.isZoneDenying(level, event.getPos(), BuiltinFlags.TREE_GROWTH)) {
-            event.setCanceled(true);
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
     }
 

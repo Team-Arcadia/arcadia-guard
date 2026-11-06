@@ -5,7 +5,7 @@ import java.lang.reflect.Proxy;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.client.event.ClientTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientJadeHook {
@@ -14,7 +14,8 @@ public final class ClientJadeHook {
 
     private ClientJadeHook() {}
 
-    public static void onClientTick(ClientTickEvent.Post event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         register();
     }
 

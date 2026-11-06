@@ -20,16 +20,16 @@ class ZoneSerializerRoundTripTest {
     void blockedItems_persistThroughWriteRead(@TempDir Path tempDir) throws IOException {
         var zone = new ProtectedZone("test", "minecraft:overworld",
             0, 0, 0, 10, 10, 10, new HashSet<>(), null, 0, null, null, null);
-        zone.blockItem(ResourceLocation.parse("minecraft:tnt"));
-        zone.blockItem(ResourceLocation.parse("ars_nouveau:wand"));
+        zone.blockItem(new ResourceLocation("minecraft:tnt"));
+        zone.blockItem(new ResourceLocation("ars_nouveau:wand"));
 
         Path file = tempDir.resolve("test.json");
         ZoneSerializer.write(zone, file);
 
         var loaded = ZoneSerializer.read(file);
         assertEquals(2, loaded.blockedItems().size());
-        assertTrue(loaded.isItemBlocked(ResourceLocation.parse("minecraft:tnt")));
-        assertTrue(loaded.isItemBlocked(ResourceLocation.parse("ars_nouveau:wand")));
+        assertTrue(loaded.isItemBlocked(new ResourceLocation("minecraft:tnt")));
+        assertTrue(loaded.isItemBlocked(new ResourceLocation("ars_nouveau:wand")));
     }
 
     @Test
@@ -39,7 +39,7 @@ class ZoneSerializerRoundTripTest {
         // Note : on évite setFlag pour ne pas requérir ArcadiaGuard.flagRegistry() en test.
         var original = new ProtectedZone("z", "minecraft:overworld",
             0, 0, 0, 10, 10, 10, new HashSet<>(), null, 0, null, null, null);
-        original.blockItem(ResourceLocation.parse("minecraft:tnt"));
+        original.blockItem(new ResourceLocation("minecraft:tnt"));
 
         var snapshot = new ProtectedZone(
             original.name(), original.dimension(),
@@ -57,7 +57,7 @@ class ZoneSerializerRoundTripTest {
         ZoneSerializer.write(snapshot, file);
 
         var loaded = ZoneSerializer.read(file);
-        assertTrue(loaded.isItemBlocked(ResourceLocation.parse("minecraft:tnt")),
+        assertTrue(loaded.isItemBlocked(new ResourceLocation("minecraft:tnt")),
             "regression 1.5.5 : le snapshot scheduleWrite doit persister blockedItems");
     }
 
@@ -76,15 +76,15 @@ class ZoneSerializerRoundTripTest {
     void blockedItems_modedNamespaces_roundTrip(@TempDir Path tempDir) throws IOException {
         var zone = new ProtectedZone("z", "minecraft:overworld",
             0, 0, 0, 10, 10, 10, new HashSet<>(), null, 0, null, null, null);
-        zone.blockItem(ResourceLocation.parse("ars_nouveau:manipulation_essence_item_frame_interaction"));
-        zone.blockItem(ResourceLocation.parse("hominid:juggernaut_spawn_egg"));
+        zone.blockItem(new ResourceLocation("ars_nouveau:manipulation_essence_item_frame_interaction"));
+        zone.blockItem(new ResourceLocation("hominid:juggernaut_spawn_egg"));
 
         Path file = tempDir.resolve("z.json");
         ZoneSerializer.write(zone, file);
         var loaded = ZoneSerializer.read(file);
 
         assertEquals(2, loaded.blockedItems().size());
-        assertTrue(loaded.isItemBlocked(ResourceLocation.parse("ars_nouveau:manipulation_essence_item_frame_interaction")));
-        assertTrue(loaded.isItemBlocked(ResourceLocation.parse("hominid:juggernaut_spawn_egg")));
+        assertTrue(loaded.isItemBlocked(new ResourceLocation("ars_nouveau:manipulation_essence_item_frame_interaction")));
+        assertTrue(loaded.isItemBlocked(new ResourceLocation("hominid:juggernaut_spawn_egg")));
     }
 }

@@ -32,7 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 import org.jetbrains.annotations.Nullable;
 
 public final class ZoneManager implements IZoneManager {
@@ -67,7 +67,7 @@ public final class ZoneManager implements IZoneManager {
         // Resoudre le level reel de la zone pour les checks suivants (heritage, flagValues)
         Level resolvedLevel = server.getLevel(net.minecraft.resources.ResourceKey.create(
             net.minecraft.core.registries.Registries.DIMENSION,
-            net.minecraft.resources.ResourceLocation.parse(zone.dimension())));
+            new net.minecraft.resources.ResourceLocation(zone.dimension())));
         final Level level = resolvedLevel != null ? resolvedLevel : player.serverLevel();
         // Dim flags pour determiner la source d'un flag herite (utilise pour le rendu client).
         java.util.Map<String, Object> dimFlags = com.arcadia.arcadiaguard.ArcadiaGuard.dimFlagStore().flags(zone.dimension());
@@ -147,7 +147,7 @@ public final class ZoneManager implements IZoneManager {
             zone.parent(), flags, members, zone.enabled(), zone.inheritDimFlags(),
             blockedItems);
         boolean viewOnly = com.arcadia.arcadiaguard.command.ZonePermission.isViewOnly(player.createCommandSourceStack());
-        PacketDistributor.sendToPlayer(player, new ZoneDetailPayload(detail, viewOnly));
+        PacketHandler.sendToPlayer(player, new ZoneDetailPayload(detail, viewOnly));
     }
 
     /**
@@ -198,7 +198,7 @@ public final class ZoneManager implements IZoneManager {
         boolean debugMode = ArcadiaGuard.guardService().isDebugMode(player.getUUID());
 
         boolean viewOnly = com.arcadia.arcadiaguard.command.ZonePermission.isViewOnly(player.createCommandSourceStack());
-        PacketDistributor.sendToPlayer(player,
+        PacketHandler.sendToPlayer(player,
             new OpenGuiPayload(all, lp1, lp2, debugMode, viewOnly));
     }
 

@@ -27,7 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -231,7 +231,7 @@ public final class InternalZoneProvider implements ZoneProvider {
         }
         scheduleWrite(zone);
         FlagMixinHelper.invalidateHasZoneCache(dimKey);
-        NeoForge.EVENT_BUS.post(new ZoneCreatedEvent(zone));
+        MinecraftForge.EVENT_BUS.post(new ZoneCreatedEvent(zone));
         return true;
     }
 
@@ -245,7 +245,7 @@ public final class InternalZoneProvider implements ZoneProvider {
         rebuildDimIndex(dimKey);
         scheduleDeletion(dimKey, name);
         FlagMixinHelper.invalidateHasZoneCache(dimKey);
-        NeoForge.EVENT_BUS.post(new ZoneRemovedEvent(removed));
+        MinecraftForge.EVENT_BUS.post(new ZoneRemovedEvent(removed));
         return true;
     }
 
@@ -385,7 +385,7 @@ public final class InternalZoneProvider implements ZoneProvider {
         scheduleWrite(zone.get());
         FlagMixinHelper.invalidateFlagCache(DimensionUtils.keyOf(level));
         this.flagRegistry.get(flagId).ifPresent(flag ->
-            NeoForge.EVENT_BUS.post(new FlagChangedEvent(zone.get(), flag, oldValue, value)));
+            MinecraftForge.EVENT_BUS.post(new FlagChangedEvent(zone.get(), flag, oldValue, value)));
         return true;
     }
 
@@ -397,7 +397,7 @@ public final class InternalZoneProvider implements ZoneProvider {
         scheduleWrite(zone.get());
         FlagMixinHelper.invalidateFlagCache(DimensionUtils.keyOf(level));
         this.flagRegistry.get(flagId).ifPresent(flag ->
-            NeoForge.EVENT_BUS.post(new FlagChangedEvent(zone.get(), flag, oldValue, null)));
+            MinecraftForge.EVENT_BUS.post(new FlagChangedEvent(zone.get(), flag, oldValue, null)));
         return true;
     }
 

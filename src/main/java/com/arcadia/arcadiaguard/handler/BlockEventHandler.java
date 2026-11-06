@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.BlockDropsEvent;
 
 /**
  * Handles block break and block place, checking {@link BuiltinFlags#BLOCK_BREAK} and
@@ -50,31 +49,9 @@ public final class BlockEventHandler {
         }
     }
 
-    public void onBlockDrops(BlockDropsEvent event) {
-        if (!ArcadiaGuardConfig.ENABLE_BLOCK_BREAK.get()) return;
-
-        Entity breaker = event.getBreaker();
-        if (breaker instanceof ServerPlayer player) {
-            if (guard.shouldBypass(player)) return;
-            if (isMemberAt(player, event.getPos())) return;
-            if (!guard.isZoneDenying(event.getLevel(), event.getPos(), BuiltinFlags.BLOCK_BREAK)) return;
-
-            event.getDrops().clear();
-            event.setDroppedExperience(0);
-            event.setCanceled(true);
-            player.displayClientMessage(Component.translatable("arcadiaguard.message.block_break")
-                .withStyle(ChatFormatting.RED), true);
-            String zoneName = zoneNameAt(player.serverLevel(), event.getPos());
-            guard.auditDenied(player, zoneName, event.getPos(), BuiltinFlags.BLOCK_BREAK, "block_break_drops");
-            return;
-        }
-
-        if (guard.isZoneDenying(event.getLevel(), event.getPos(), BuiltinFlags.BLOCK_BREAK)) {
-            event.getDrops().clear();
-            event.setDroppedExperience(0);
-            event.setCanceled(true);
-        }
-    }
+    // PORT-TODO: BlockDropsEvent does not exist on Forge 1.20.1. Player breaks are already
+    // denied by BlockEvent.BreakEvent (HIGHEST), so no drops occur; drop suppression for
+    // non-player breakers in denied zones is disabled on this port.
 
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (!ArcadiaGuardConfig.ENABLE_BLOCK_PLACE.get()) return;

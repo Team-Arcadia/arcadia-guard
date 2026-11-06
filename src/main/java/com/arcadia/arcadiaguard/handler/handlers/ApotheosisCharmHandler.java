@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,14 +34,16 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
  */
 public final class ApotheosisCharmHandler implements RightClickItemHandler {
 
-    private static final ResourceLocation CHARM_ENABLED_KEY =
-        ResourceLocation.fromNamespaceAndPath("apotheosis", "charm_enabled");
+    // PORT: 1.20.1 has no data components; Apotheosis 1.20.1 stores the charm state as the
+    // boolean NBT key "charm_enabled" on apotheosis:potion_charm (unverified against the jar).
+    private static final ResourceLocation CHARM_ITEM_KEY =
+        new ResourceLocation("apotheosis", "potion_charm");
+    private static final String CHARM_ENABLED_TAG = "charm_enabled";
 
     /** Tracks which inventory slots had their charm disabled per player UUID. */
     private static final Map<UUID, java.util.List<Integer>> SUPPRESSED = new ConcurrentHashMap<>();
 
     private final GuardService guardService;
-    private volatile DataComponentType<Boolean> charmComponentType; // resolved lazily
 
     public ApotheosisCharmHandler(GuardService guardService) {
         this.guardService = guardService;
@@ -74,16 +75,12 @@ public final class ApotheosisCharmHandler implements RightClickItemHandler {
     /** Call when a player enters a zone with CHARM_USE=deny. Deactivates all active charms. */
     public void suppressCharms(ServerPlayer player) {
         if (!ModList.get().isLoaded("apotheosis")) return;
-        DataComponentType<Boolean> type = resolveComponentType();
-        if (type == null) return;
-
         var items = player.getInventory().items;
         var suppressed = new java.util.ArrayList<Integer>();
         for (int i = 0; i < items.size(); i++) {
             ItemStack stack = items.get(i);
-            Boolean enabled = stack.get(type);
-            if (Boolean.TRUE.equals(enabled)) {
-                stack.set(type, false);
+            if (isCharmItem(stack) && stack.getTag() != null && stack.getTag().getBoolean(CHARM_ENABLED_TAG)) {
+                stack.getOrCreateTag().putBoolean(CHARM_ENABLED_TAG, false);
                 suppressed.add(i);
             }
         }
@@ -95,9 +92,6 @@ public final class ApotheosisCharmHandler implements RightClickItemHandler {
     /** Call when a player leaves a zone with CHARM_USE=deny. Restores deactivated charms. */
     public void restoreCharms(ServerPlayer player) {
         if (!ModList.get().isLoaded("apotheosis")) return;
-        DataComponentType<Boolean> type = resolveComponentType();
-        if (type == null) return;
-
         var suppressed = SUPPRESSED.remove(player.getUUID());
         if (suppressed == null) return;
         var items = player.getInventory().items;
@@ -105,7 +99,7 @@ public final class ApotheosisCharmHandler implements RightClickItemHandler {
             if (slot < items.size()) {
                 ItemStack stack = items.get(slot);
                 if (isCharmItem(stack)) {
-                    stack.set(type, true);
+                    stack.getOrCreateTag().putBoolean(CHARM_ENABLED_TAG, true);
                 }
             }
         }
@@ -118,21 +112,6 @@ public final class ApotheosisCharmHandler implements RightClickItemHandler {
     }
 
     public boolean isCharmItem(ItemStack stack) {
-        DataComponentType<Boolean> type = resolveComponentType();
-        return type != null && stack.has(type);
-    }
-
-    @SuppressWarnings("unchecked")
-    private DataComponentType<Boolean> resolveComponentType() {
-        if (charmComponentType != null) return charmComponentType;
-        try {
-            Object type = BuiltInRegistries.DATA_COMPONENT_TYPE.get(CHARM_ENABLED_KEY);
-            if (type instanceof DataComponentType<?> dct) {
-                charmComponentType = (DataComponentType<Boolean>) dct;
-            }
-        } catch (Exception e) {
-            ArcadiaGuard.LOGGER.warn("[ArcadiaGuard] Could not resolve apotheosis:charm_enabled DataComponent: {}", e.getMessage());
-        }
-        return charmComponentType;
+        return !stack.isEmpty() && CHARM_ITEM_KEY.equals(BuiltInRegistries.ITEM.getKey(stack.getItem()));
     }
 }

@@ -1,17 +1,12 @@
 package com.arcadia.arcadiaguard.network.gui;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
+import com.arcadia.arcadiaguard.network.NetCodec;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 
 /** S→C : détail complet d'une zone (flags + membres). */
-public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements CustomPacketPayload {
+public record ZoneDetailPayload(Detail detail, boolean viewOnly) {
 
     /**
      * type: 0=BOOL, 1=INT, 2=LIST, 3=STRING. stringValue contient la valeur brute (ex: "42" ou "a,b,c").
@@ -25,12 +20,12 @@ public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements Cust
         public static final byte SOURCE_NONE = 0, SOURCE_ZONE_OWN = 1, SOURCE_PARENT = 2, SOURCE_DIM = 3;
 
         // DoS-safe string codecs (size-capped)
-        private static final StreamCodec<ByteBuf, String> ID_C     = ByteBufCodecs.stringUtf8(64);
-        private static final StreamCodec<ByteBuf, String> LABEL_C  = ByteBufCodecs.stringUtf8(128);
-        private static final StreamCodec<ByteBuf, String> DESC_C   = ByteBufCodecs.stringUtf8(512);
-        private static final StreamCodec<ByteBuf, String> VALUE_C  = ByteBufCodecs.stringUtf8(32768);
+        private static final NetCodec<String> ID_C     = NetCodec.utf8(64);
+        private static final NetCodec<String> LABEL_C  = NetCodec.utf8(128);
+        private static final NetCodec<String> DESC_C   = NetCodec.utf8(512);
+        private static final NetCodec<String> VALUE_C  = NetCodec.utf8(32768);
 
-        static final StreamCodec<ByteBuf, FlagEntry> CODEC = StreamCodec.of(
+        static final NetCodec<FlagEntry> CODEC = NetCodec.of(
             (buf, f) -> {
                 ID_C.encode(buf, f.id);
                 LABEL_C.encode(buf, f.label);
@@ -54,9 +49,9 @@ public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements Cust
     }
 
     public record MemberEntry(String uuid, String name) {
-        private static final StreamCodec<ByteBuf, String> UUID_C = ByteBufCodecs.stringUtf8(36);
-        private static final StreamCodec<ByteBuf, String> NAME_C = ByteBufCodecs.stringUtf8(32);
-        static final StreamCodec<ByteBuf, MemberEntry> CODEC = StreamCodec.of(
+        private static final NetCodec<String> UUID_C = NetCodec.utf8(36);
+        private static final NetCodec<String> NAME_C = NetCodec.utf8(32);
+        static final NetCodec<MemberEntry> CODEC = NetCodec.of(
             (buf, m) -> {
                 UUID_C.encode(buf, m.uuid);
                 NAME_C.encode(buf, m.name);
@@ -68,9 +63,9 @@ public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements Cust
         );
     }
 
-    private static final StreamCodec<ByteBuf, String> ZONE_NAME_C = ByteBufCodecs.stringUtf8(64);
-    private static final StreamCodec<ByteBuf, String> DIM_NAME_C  = ByteBufCodecs.stringUtf8(256);
-    private static final StreamCodec<ByteBuf, String> ITEM_ID_C   = ByteBufCodecs.stringUtf8(128);
+    private static final NetCodec<String> ZONE_NAME_C = NetCodec.utf8(64);
+    private static final NetCodec<String> DIM_NAME_C  = NetCodec.utf8(256);
+    private static final NetCodec<String> ITEM_ID_C   = NetCodec.utf8(128);
 
     public record Detail(
         String name, String dim,
@@ -83,7 +78,7 @@ public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements Cust
         boolean inheritDimFlags,
         List<String> blockedItems
     ) {
-        static final StreamCodec<ByteBuf, Detail> CODEC = StreamCodec.of(
+        static final NetCodec<Detail> CODEC = NetCodec.of(
             (buf, d) -> {
                 ZONE_NAME_C.encode(buf, d.name);
                 DIM_NAME_C.encode(buf, d.dim);
@@ -125,14 +120,9 @@ public record ZoneDetailPayload(Detail detail, boolean viewOnly) implements Cust
         );
     }
 
-    public static final Type<ZoneDetailPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaGuard.MOD_ID, "zone_detail"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ZoneDetailPayload> STREAM_CODEC = StreamCodec.of(
+    public static final NetCodec<ZoneDetailPayload> STREAM_CODEC = NetCodec.of(
         (buf, p) -> { Detail.CODEC.encode(buf, p.detail()); buf.writeBoolean(p.viewOnly()); },
         buf -> new ZoneDetailPayload(Detail.CODEC.decode(buf), buf.readBoolean())
     );
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() { return TYPE; }
 }

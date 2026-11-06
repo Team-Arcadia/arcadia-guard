@@ -7,7 +7,7 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * Fired on the NeoForge EventBus when a flag value is explicitly set or reset on a zone.
  *
- * <p>Listeners must be registered on {@code NeoForge.EVENT_BUS}.
+ * <p>Listeners must be registered on {@code MinecraftForge.EVENT_BUS}.
  * This event is fired on the server thread after the change is persisted to disk.
  */
 public class FlagChangedEvent extends Event {

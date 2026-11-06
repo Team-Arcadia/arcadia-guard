@@ -171,7 +171,7 @@ class ProtectedZoneTest {
     @Test
     void blockItem_addAndRemove() {
         var zone = make();
-        var id = net.minecraft.resources.ResourceLocation.parse("minecraft:tnt");
+        var id = new net.minecraft.resources.ResourceLocation("minecraft:tnt");
         assertTrue(zone.blockItem(id));
         assertTrue(zone.isItemBlocked(id));
         assertTrue(zone.unblockItem(id));
@@ -188,7 +188,7 @@ class ProtectedZoneTest {
     @Test
     void blockItem_duplicateReturnsFalse() {
         var zone = make();
-        var id = net.minecraft.resources.ResourceLocation.parse("minecraft:tnt");
+        var id = new net.minecraft.resources.ResourceLocation("minecraft:tnt");
         assertTrue(zone.blockItem(id));
         assertFalse(zone.blockItem(id));
     }
@@ -232,8 +232,8 @@ class ProtectedZoneTest {
 
     @Test
     void fullConstructor_withBlockedItems_preservesThem() {
-        var item1 = net.minecraft.resources.ResourceLocation.parse("minecraft:tnt");
-        var item2 = net.minecraft.resources.ResourceLocation.parse("minecraft:diamond");
+        var item1 = new net.minecraft.resources.ResourceLocation("minecraft:tnt");
+        var item2 = new net.minecraft.resources.ResourceLocation("minecraft:diamond");
         var blocked = new HashSet<net.minecraft.resources.ResourceLocation>();
         blocked.add(item1);
         blocked.add(item2);
@@ -250,7 +250,7 @@ class ProtectedZoneTest {
     void scheduleWriteSnapshot_replicatesBlockedItems() {
         // Reproduit le pattern exact d'InternalZoneProvider.scheduleWrite : copie
         // toutes les collections via le full constructor.
-        var item = net.minecraft.resources.ResourceLocation.parse("minecraft:tnt");
+        var item = new net.minecraft.resources.ResourceLocation("minecraft:tnt");
         var original = make();
         original.blockItem(item);
         original.setFlag("pvp", false);

@@ -23,27 +23,25 @@ import java.util.List;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.ItemEntityPickupEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.BlockDropsEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
-import net.minecraftforge.event.level.block.CropGrowEvent;
-import net.minecraftforge.event.level.BlockGrowFeatureEvent;
-import net.minecraftforge.event.tick.EntityTickEvent;
-import net.minecraftforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 
 public final class HandlerRegistry {
 
@@ -119,72 +117,72 @@ public final class HandlerRegistry {
                 registerDynamic(dynamic);
             }
         }
-        NeoForge.EVENT_BUS.addListener(this::onRightClickItem);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, PlayerInteractEvent.RightClickBlock.class, blockEventHandler::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(this::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(this::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, BlockEvent.BreakEvent.class, this::onBlockBreak);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, BlockDropsEvent.class, blockEventHandler::onBlockDrops);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, BlockEvent.EntityPlaceEvent.class, blockEventHandler::onBlockPlace);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, PlayerInteractEvent.LeftClickBlock.class, playerEventHandler::onLeftClickBlock);
-        NeoForge.EVENT_BUS.addListener(playerEventHandler::onDimensionChange);
-        NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class, playerEventHandler::onPlayerLogout);
-        NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedInEvent.class, EasterEggHandler::onPlayerLogin);
-        NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class, EasterEggHandler::onPlayerLogout);
-        NeoForge.EVENT_BUS.addListener(net.minecraftforge.event.tick.ServerTickEvent.Post.class, EasterEggHandler::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(this::onRightClickItem);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, PlayerInteractEvent.RightClickBlock.class, blockEventHandler::onRightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(this::onRightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(this::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, BlockEvent.BreakEvent.class, this::onBlockBreak);
+        // PORT-TODO: BlockDropsEvent absent on Forge 1.20.1 (see BlockEventHandler).
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, BlockEvent.EntityPlaceEvent.class, blockEventHandler::onBlockPlace);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, PlayerInteractEvent.LeftClickBlock.class, playerEventHandler::onLeftClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(playerEventHandler::onDimensionChange);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.PlayerLoggedOutEvent.class, playerEventHandler::onPlayerLogout);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.PlayerLoggedInEvent.class, EasterEggHandler::onPlayerLogin);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.PlayerLoggedOutEvent.class, EasterEggHandler::onPlayerLogout);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, TickEvent.ServerTickEvent.class, EasterEggHandler::onServerTick);
         // VanillaExtraHandler : flags vanilla additionnels
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, vanillaExtraHandler::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, net.minecraftforge.event.entity.EntityTravelToDimensionEvent.class, vanillaExtraHandler::onTravelDim);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, BlockEvent.BlockToolModificationEvent.class, vanillaExtraHandler::onBlockToolModification);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickBlock.class, vanillaExtraHandler::onBucketUse);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickItem.class, vanillaExtraHandler::onBucketUseItem);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.ServerChatEvent.class, vanillaExtraHandler::onChat);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.CommandEvent.class, vanillaExtraHandler::onCommand);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingAttackEvent.class, entityEventHandler::onLivingIncomingDamage);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, net.minecraftforge.event.entity.living.LivingDeathEvent.class, entityEventHandler::onLivingDeath);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingFallEvent.class, entityEventHandler::onLivingFall);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, FinalizeSpawnEvent.class, entityEventHandler::onMobSpawn);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, TickEvent.PlayerTickEvent.class, vanillaExtraHandler::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, net.minecraftforge.event.entity.EntityTravelToDimensionEvent.class, vanillaExtraHandler::onTravelDim);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, true, BlockEvent.BlockToolModificationEvent.class, vanillaExtraHandler::onBlockToolModification);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickBlock.class, vanillaExtraHandler::onBucketUse);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickItem.class, vanillaExtraHandler::onBucketUseItem);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.ServerChatEvent.class, vanillaExtraHandler::onChat);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.CommandEvent.class, vanillaExtraHandler::onCommand);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingAttackEvent.class, entityEventHandler::onLivingIncomingDamage);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, net.minecraftforge.event.entity.living.LivingDeathEvent.class, entityEventHandler::onLivingDeath);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingFallEvent.class, entityEventHandler::onLivingFall);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, MobSpawnEvent.FinalizeSpawn.class, entityEventHandler::onMobSpawn);
         // LOWEST : cancel le spawn si un autre mod a discard l'entite (anti-spam Hominid-like).
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, FinalizeSpawnEvent.class, entityEventHandler::onFinalizeSpawnDiscardCleanup);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ExplosionEvent.Detonate.class, entityEventHandler::onExplosion);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, playerEventHandler::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, entityEventHandler::onEntityTick);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, MobSpawnEvent.FinalizeSpawn.class, entityEventHandler::onFinalizeSpawnDiscardCleanup);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ExplosionEvent.Detonate.class, entityEventHandler::onExplosion);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, TickEvent.PlayerTickEvent.class, playerEventHandler::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingEvent.LivingTickEvent.class, entityEventHandler::onEntityTick);
 
         // FlagEventHandler : interactions / combats / items / téléportations / croissance
         // S-H16 T1 : Sophisticated Storage en HIGHEST — doit s'executer avant FlagEventHandler
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.RightClickBlock.class, sophisticatedStorageHandler::onRightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.RightClickBlock.class, sophisticatedStorageHandler::onRightClickBlock);
         // S-H16 AC1 : minecarts-coffres et chest-boats (Entity, pas BlockEntity)
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.EntityInteract.class, sophisticatedStorageHandler::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.EntityInteract.class, sophisticatedStorageHandler::onEntityInteract);
         // S-H16 T7 : SimplySwords abilities declenchees au chargement de l'item
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false,
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false,
             net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Start.class,
             simplySwordsHandlerRef::onUseItemStart);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickBlock.class, flagEventHandler::onRightClickBlock);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickItem.class, flagEventHandler::onRightClickItem);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.EntityInteract.class, flagEventHandler::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, flagEventHandler::onAttackEntity);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickBlock.class, flagEventHandler::onRightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickItem.class, flagEventHandler::onRightClickItem);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.EntityInteract.class, flagEventHandler::onEntityInteract);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, flagEventHandler::onAttackEntity);
         // Per-zone banned items : bloque aussi l'attaque (epee bannie dans la zone ne doit pas frapper)
         ZoneItemHandler zoneItems = this.handlers.stream()
             .filter(ZoneItemHandler.class::isInstance).map(ZoneItemHandler.class::cast).findFirst().orElse(null);
         if (zoneItems != null) {
-            NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, zoneItems::onAttack);
+            MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, AttackEntityEvent.class, zoneItems::onAttack);
         }
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemTossEvent.class, flagEventHandler::onItemToss);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, flagEventHandler::onItemPickup);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingExperienceDropEvent.class, flagEventHandler::onExpDrop);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTeleportEvent.EnderPearl.class, flagEventHandler::onEnderPearlTeleport);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTeleportEvent.ChorusFruit.class, flagEventHandler::onChorusFruitTeleport);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, CropGrowEvent.Pre.class, flagEventHandler::onCropGrow);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BonemealEvent.class, flagEventHandler::onBonemeal);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockGrowFeatureEvent.class, flagEventHandler::onTreeGrow);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.FarmlandTrampleEvent.class, flagEventHandler::onFarmlandTrample);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.FluidPlaceBlockEvent.class, flagEventHandler::onFluidPlaceBlock);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.EntityPlaceEvent.class, flagEventHandler::onBlockEntityPlace);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityJoinLevelEvent.class, entityEventHandler::onMobJoinLevel);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, entityEventHandler::onAnimalJoinLevel);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityJoinLevelEvent.class, flagEventHandler::onVehicleJoin);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, mutantMonstersHandler::onEntityJoin);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ProjectileImpactEvent.class, twilightForestHandler::onProjectileImpact);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemTossEvent.class, flagEventHandler::onItemToss);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityItemPickupEvent.class, flagEventHandler::onItemPickup);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingExperienceDropEvent.class, flagEventHandler::onExpDrop);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTeleportEvent.EnderPearl.class, flagEventHandler::onEnderPearlTeleport);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTeleportEvent.ChorusFruit.class, flagEventHandler::onChorusFruitTeleport);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.CropGrowEvent.Pre.class, flagEventHandler::onCropGrow);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BonemealEvent.class, flagEventHandler::onBonemeal);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, SaplingGrowTreeEvent.class, flagEventHandler::onTreeGrow);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.FarmlandTrampleEvent.class, flagEventHandler::onFarmlandTrample);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.FluidPlaceBlockEvent.class, flagEventHandler::onFluidPlaceBlock);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, BlockEvent.EntityPlaceEvent.class, flagEventHandler::onBlockEntityPlace);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityJoinLevelEvent.class, entityEventHandler::onMobJoinLevel);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, entityEventHandler::onAnimalJoinLevel);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityJoinLevelEvent.class, flagEventHandler::onVehicleJoin);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, mutantMonstersHandler::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ProjectileImpactEvent.class, twilightForestHandler::onProjectileImpact);
     }
 
     public void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
@@ -228,7 +226,7 @@ public final class HandlerRegistry {
                 handler.getClass().getSimpleName(), clazz.getName());
             return;
         }
-        NeoForge.EVENT_BUS.addListener((Class) clazz, event -> handler.handle((Event) event));
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, (Class) clazz, event -> handler.handle((Event) event));
     }
 
     public interface DynamicEventHandler {

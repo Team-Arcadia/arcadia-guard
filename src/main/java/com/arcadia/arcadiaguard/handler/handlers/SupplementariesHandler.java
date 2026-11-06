@@ -18,7 +18,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 public final class SupplementariesHandler implements RightClickItemHandler {
 
-    private static final TagKey<Item> THROWABLE_BRICKS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("supplementaries", "throwable_bricks"));
+    private static final TagKey<Item> THROWABLE_BRICKS = TagKey.create(Registries.ITEM, new ResourceLocation("supplementaries", "throwable_bricks"));
     private final GuardService guardService;
 
     public SupplementariesHandler(GuardService guardService) {

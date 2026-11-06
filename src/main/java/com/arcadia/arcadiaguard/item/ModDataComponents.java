@@ -1,25 +1,27 @@
 package com.arcadia.arcadiaguard.item;
 
-import com.arcadia.arcadiaguard.ArcadiaGuard;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredHolder;
-import net.minecraftforge.registries.DeferredRegister;
 
+/**
+ * PORT: data components do not exist on 1.20.1; the wand mode is stored in the stack NBT.
+ */
 public final class ModDataComponents {
 
-    private static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
-        DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, ArcadiaGuard.MOD_ID);
+    public static final String WAND_MODE_TAG = "arcadiaguard_wand_mode";
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<WandMode>> WAND_MODE =
-        DATA_COMPONENTS.register("wand_mode", () -> DataComponentType.<WandMode>builder()
-            .persistent(WandMode.CODEC)
-            .networkSynchronized(WandMode.STREAM_CODEC)
-            .build());
+    public static WandMode getWandMode(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getBoolean(WAND_MODE_TAG) ? WandMode.VIEW : WandMode.EDIT;
+    }
+
+    public static void setWandMode(ItemStack stack, WandMode mode) {
+        stack.getOrCreateTag().putBoolean(WAND_MODE_TAG, mode == WandMode.VIEW);
+    }
 
     public static void register(IEventBus modBus) {
-        DATA_COMPONENTS.register(modBus);
+        // nothing to register on 1.20.1
     }
 
     private ModDataComponents() {}

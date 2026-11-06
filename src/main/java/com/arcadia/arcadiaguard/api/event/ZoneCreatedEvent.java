@@ -6,7 +6,7 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * Fired on the NeoForge EventBus when a zone is successfully created and persisted.
  *
- * <p>Listeners must be registered on {@code NeoForge.EVENT_BUS}.
+ * <p>Listeners must be registered on {@code MinecraftForge.EVENT_BUS}.
  * This event is fired on the server thread.
  */
 public class ZoneCreatedEvent extends Event {

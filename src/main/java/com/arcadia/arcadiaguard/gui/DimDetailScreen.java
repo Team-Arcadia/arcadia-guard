@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 /** Écran client : édition des flags au niveau d'une dimension. */
 @OnlyIn(Dist.CLIENT)
@@ -424,7 +424,7 @@ public final class DimDetailScreen extends Screen {
                     FlagInfo f = filtered.get(idx);
                     if (f.type() == FlagInfo.TYPE_BOOL) {
                         boolean newVal = f.configured() ? !f.value() : false;
-                        PacketDistributor.sendToServer(
+                        PacketHandler.sendToServer(
                             GuiActionPayload.setDimFlag(data.dimKey(), f.id(), newVal));
                     } else {
                         closePicker();
@@ -474,14 +474,14 @@ public final class DimDetailScreen extends Screen {
                 int rx  = bx - 18;
 
                 if (imx >= rx && imx < rx + 14 && imy >= iy + 4 && imy < iy + FLAG_H - 4) {
-                    PacketDistributor.sendToServer(
+                    PacketHandler.sendToServer(
                         GuiActionPayload.resetDimFlag(data.dimKey(), f.id()));
                     return true;
                 }
 
                 if (f.type() == FlagInfo.TYPE_BOOL) {
                     if (imx >= bx && imx < bx + 30) {
-                        PacketDistributor.sendToServer(
+                        PacketHandler.sendToServer(
                             GuiActionPayload.setDimFlag(data.dimKey(), f.id(), !f.value()));
                         return true;
                     }

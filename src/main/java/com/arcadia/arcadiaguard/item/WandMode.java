@@ -2,8 +2,6 @@ package com.arcadia.arcadiaguard.item;
 
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 
 public enum WandMode {
     EDIT, VIEW;
@@ -13,8 +11,12 @@ public enum WandMode {
         mode -> mode == VIEW
     );
 
-    public static final StreamCodec<ByteBuf, WandMode> STREAM_CODEC = ByteBufCodecs.BOOL.map(
-        view -> view ? VIEW : EDIT,
-        mode -> mode == VIEW
-    );
+    /** PORT: StreamCodec does not exist on 1.20.1; minimal ByteBuf codec with the same wire format. */
+    public static final BufCodec STREAM_CODEC = new BufCodec();
+
+    public static final class BufCodec {
+        private BufCodec() {}
+        public void encode(ByteBuf buf, WandMode mode) { buf.writeBoolean(mode == VIEW); }
+        public WandMode decode(ByteBuf buf) { return buf.readBoolean() ? VIEW : EDIT; }
+    }
 }

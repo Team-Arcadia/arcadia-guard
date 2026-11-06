@@ -1,7 +1,7 @@
 package com.arcadia.arcadiaguard.mixin;
 
 import com.arcadia.arcadiaguard.client.ClientParcoolState;
-import net.minecraftforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.TickEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,12 +26,13 @@ public abstract class ActionProcessorMixin {
     private static boolean LOADED_LOGGED = false;
 
     @Inject(
-        method = "onTick(Lnet/neoforged/neoforge/event/tick/PlayerTickEvent$Post;)V",
+        // PORT: ParCool 1.20.1 Forge signature assumed onTick(TickEvent.PlayerTickEvent) (unverified)
+        method = "onTick(Lnet/minecraftforge/event/TickEvent$PlayerTickEvent;)V",
         at = @At("HEAD"),
         cancellable = true,
         remap = false
     )
-    private void arcadiaguard$maybeCancelParcoolTick(PlayerTickEvent.Post event, CallbackInfo ci) {
+    private void arcadiaguard$maybeCancelParcoolTick(TickEvent.PlayerTickEvent event, CallbackInfo ci) {
         if (!LOADED_LOGGED) {
             LOADED_LOGGED = true;
             com.arcadia.arcadiaguard.ArcadiaGuard.debugInfo(

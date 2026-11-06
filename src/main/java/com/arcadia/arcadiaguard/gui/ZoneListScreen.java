@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
+import com.arcadia.arcadiaguard.network.PacketHandler;
 
 @OnlyIn(Dist.CLIENT)
 public final class ZoneListScreen extends Screen {
@@ -141,14 +141,14 @@ public final class ZoneListScreen extends Screen {
             teleportBtn = CartographiaButton.neutral(cursor, fy + 6, BTN_W_ACTION, 16,
                 Component.translatable("arcadiaguard.gui.zonelist.btn_teleport"),
                 b -> { if (selectedIndex >= 0 && selectedIndex < filteredZones.size())
-                    PacketDistributor.sendToServer(GuiActionPayload.teleport(filteredZones.get(selectedIndex).name())); });
+                    PacketHandler.sendToServer(GuiActionPayload.teleport(filteredZones.get(selectedIndex).name())); });
             addRenderableWidget(teleportBtn);
             cursor += BTN_W_ACTION + 8;
 
             detailsBtn = CartographiaButton.neutral(cursor, fy + 6, BTN_W_ACTION, 16,
                 Component.translatable("arcadiaguard.gui.zonelist.btn_details"),
                 b -> { if (selectedIndex >= 0 && selectedIndex < filteredZones.size())
-                    PacketDistributor.sendToServer(GuiActionPayload.requestDetail(filteredZones.get(selectedIndex).name())); });
+                    PacketHandler.sendToServer(GuiActionPayload.requestDetail(filteredZones.get(selectedIndex).name())); });
             addRenderableWidget(detailsBtn);
             cursor += BTN_W_ACTION + 8;
 
@@ -186,7 +186,7 @@ public final class ZoneListScreen extends Screen {
                 : Component.translatable("arcadiaguard.gui.zonelist.btn_dim_flags").getString();
             dimFlagsBtn = CartographiaButton.neutral(dimBtnX, fy + 6, dimBtnW, 16,
                 Component.literal(dimBtnLabel),
-                b -> PacketDistributor.sendToServer(GuiActionPayload.requestDimDetail(dimFilter)));
+                b -> PacketHandler.sendToServer(GuiActionPayload.requestDimDetail(dimFilter)));
             addRenderableWidget(dimFlagsBtn);
         } else {
             dimFlagsBtn = null;
@@ -200,7 +200,7 @@ public final class ZoneListScreen extends Screen {
                 : Component.translatable("arcadiaguard.gui.zonelist.debug_off").getString());
         debugBtn = CartographiaButton.neutral(debugBtnX, fy + 6, debugBtnW, 16,
             Component.literal(debugLabel),
-            b -> { debugMode = !debugMode; PacketDistributor.sendToServer(GuiActionPayload.toggleDebug()); rebuildWidgets(); });
+            b -> { debugMode = !debugMode; PacketHandler.sendToServer(GuiActionPayload.toggleDebug()); rebuildWidgets(); });
         if (viewOnly) debugBtn.active = false;
         addRenderableWidget(debugBtn);
 
@@ -647,7 +647,7 @@ public final class ZoneListScreen extends Screen {
         }
         if (imx >= px + pw - 110 && imx < px + pw - 10 && imy >= btY && imy < btY + 22) {
             String zoneName = filteredZones.get(selectedIndex).name();
-            PacketDistributor.sendToServer(GuiActionPayload.deleteZone(zoneName));
+            PacketHandler.sendToServer(GuiActionPayload.deleteZone(zoneName));
             selectedIndex = -1;
             confirmDeleteOpen = false;
             return true;
@@ -669,7 +669,7 @@ public final class ZoneListScreen extends Screen {
             for (DimHit dh : dimHits) {
                 if (dh.gear != null && dh.gear.hit(imx, imy)) {
                     if (!dh.dim.isEmpty()) {
-                        PacketDistributor.sendToServer(GuiActionPayload.requestDimDetail(dh.dim));
+                        PacketHandler.sendToServer(GuiActionPayload.requestDimDetail(dh.dim));
                     }
                     return true;
                 }
@@ -707,7 +707,7 @@ public final class ZoneListScreen extends Screen {
                 // Double-clic sur la meme zone -> ouvre le detail
                 long now = System.currentTimeMillis();
                 if (idx == lastClickIdx && now - lastClickAt < 400) {
-                    PacketDistributor.sendToServer(GuiActionPayload.requestDetail(filteredZones.get(idx).name()));
+                    PacketHandler.sendToServer(GuiActionPayload.requestDetail(filteredZones.get(idx).name()));
                     lastClickAt = 0; lastClickIdx = -1;
                     return true;
                 }
@@ -758,7 +758,7 @@ public final class ZoneListScreen extends Screen {
         // Enter / Numpad Enter → open detail for selected zone
         if ((keyCode == 257 || keyCode == 335) && selectedIndex >= 0
                 && selectedIndex < filteredZones.size()) {
-            PacketDistributor.sendToServer(
+            PacketHandler.sendToServer(
                 GuiActionPayload.requestDetail(filteredZones.get(selectedIndex).name()));
             return true;
         }

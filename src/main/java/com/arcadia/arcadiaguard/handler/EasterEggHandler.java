@@ -10,7 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Easter egg : message actionbar one-shot a la connexion pour les testeurs v1.5.
@@ -66,7 +66,8 @@ public final class EasterEggHandler {
         PENDING.remove(event.getEntity().getUUID());
     }
 
-    public static void onServerTick(ServerTickEvent.Post event) {
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         if (PENDING.isEmpty()) return;
         Iterator<Map.Entry<UUID, Integer>> it = PENDING.entrySet().iterator();
         while (it.hasNext()) {

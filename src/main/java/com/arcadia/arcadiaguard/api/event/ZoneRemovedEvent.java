@@ -6,7 +6,7 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * Fired on the NeoForge EventBus when a zone is successfully removed and its file deleted.
  *
- * <p>Listeners must be registered on {@code NeoForge.EVENT_BUS}.
+ * <p>Listeners must be registered on {@code MinecraftForge.EVENT_BUS}.
  * This event is fired on the server thread.
  */
 public class ZoneRemovedEvent extends Event {
