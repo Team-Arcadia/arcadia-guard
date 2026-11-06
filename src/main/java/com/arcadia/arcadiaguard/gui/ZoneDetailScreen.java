@@ -27,7 +27,8 @@ public final class ZoneDetailScreen extends Screen {
         permits PopupState.None, PopupState.ConfirmDelete,
                 PopupState.WhitelistInput, PopupState.ParentInput,
                 PopupState.FlagPicker, PopupState.CoordsEditor,
-                PopupState.ItemBlocksPicker {
+                PopupState.ItemBlocksPicker, PopupState.RenameInput {
+        record RenameInput()   implements PopupState {}
         record None()          implements PopupState {}
         record ConfirmDelete() implements PopupState {}
         record WhitelistInput() implements PopupState {}
@@ -77,6 +78,7 @@ public final class ZoneDetailScreen extends Screen {
 
     private EditBox whitelistBox;
     private EditBox parentBox;
+    private EditBox renameBox;
     private EditBox flagSearchBox;
     private EditBox activeFlagSearchBox;
     private EditBox[] coordBoxes;
@@ -104,7 +106,13 @@ public final class ZoneDetailScreen extends Screen {
     }
 
     public void updateDetail(Detail d) {
+        String previousName = this.detail != null ? this.detail.name() : null;
         this.detail = d;
+        // Zone renommee : le cache de rendu client suit le nouveau nom.
+        if (previousName != null && !previousName.equals(d.name())) {
+            ClientZoneCache.remove(previousName);
+            if (viewZone) updateViewCache();
+        }
     }
 
     // ── Init ─────────────────────────────────────────────────────────────────────
@@ -141,6 +149,16 @@ public final class ZoneDetailScreen extends Screen {
             .withStyle(s -> s.withColor(Colors.TEXT_MUTE)));
         parentBox.setVisible(false);
         addRenderableWidget(parentBox);
+
+        renameBox = new com.arcadia.arcadiaguard.gui.widget.CenteredEditBox(font, col3X + 4, gy + HEADER_H + 28, col3W - 10, 14,
+            Component.translatable("arcadiaguard.gui.zonedetail.rename_label"));
+        renameBox.setMaxLength(64);
+        renameBox.setBordered(false);
+        renameBox.setTextColor(Colors.TEXT);
+        renameBox.setHint(Component.translatable("arcadiaguard.gui.zonedetail.rename_box.hint")
+            .withStyle(s -> s.withColor(Colors.TEXT_MUTE)));
+        renameBox.setVisible(false);
+        addRenderableWidget(renameBox);
 
         flagSearchBox = new com.arcadia.arcadiaguard.gui.widget.CenteredEditBox(font, 0, 0, 100, 14,
             Component.translatable("arcadiaguard.gui.zone_detail.flag_search_hint"));
@@ -301,7 +319,7 @@ public final class ZoneDetailScreen extends Screen {
         renderHeader(g, mx, my);
         renderCol1(g, mx, my);
         if (popup instanceof PopupState.None || popup instanceof PopupState.WhitelistInput
-                || popup instanceof PopupState.ParentInput) {
+                || popup instanceof PopupState.ParentInput || popup instanceof PopupState.RenameInput) {
             renderCol2(g, mx, my);
             renderCol3(g, mx, my);
             renderFlagDesc(g);
@@ -313,6 +331,7 @@ public final class ZoneDetailScreen extends Screen {
         // H-U5: draw focus ring for non-bordered EditBoxes
         drawFocusRingIfFocused(g, whitelistBox);
         drawFocusRingIfFocused(g, parentBox);
+        drawFocusRingIfFocused(g, renameBox);
         drawFocusRingIfFocused(g, activeFlagSearchBox);
 
         super.render(g, mx, my, delta);
@@ -335,6 +354,7 @@ public final class ZoneDetailScreen extends Screen {
         if (hasModalPopup()) {
             if (whitelistBox != null) whitelistBox.setVisible(false);
             if (parentBox != null) parentBox.setVisible(false);
+            if (renameBox != null) renameBox.setVisible(false);
             if (activeFlagSearchBox != null) activeFlagSearchBox.setVisible(false);
             if (flagSearchBox != null) flagSearchBox.setVisible(false);
             if (itemSearchBox != null) itemSearchBox.setVisible(false);
@@ -483,6 +503,24 @@ public final class ZoneDetailScreen extends Screen {
         String nameLabel = font.plainSubstrByWidth(detail.name(), nameMaxW);
         if (nameLabel.length() < detail.name().length()) nameLabel += "…";
         g.drawString(font, nameLabel, gx + 30, gy + 8, Colors.ACCENT_HI, false);
+        if (!viewOnly) {
+            // Clic sur le nom (icone crayon) : ouvre la saisie inline "Renommer".
+            int nameW = font.width(nameLabel);
+            int penX = gx + 30 + nameW + 4;
+            boolean hoverName = mx >= gx + 30 && mx < penX + 8 && my >= gy + 6 && my < gy + 18;
+            g.drawString(font, "✎", penX, gy + 8, hoverName ? Colors.ACCENT_HI : Colors.TEXT_MUTE, false);
+            if (hoverName) g.renderTooltip(font,
+                Component.translatable("arcadiaguard.gui.zonedetail.rename_tooltip"), mx, my);
+            editHit(gx + 30, gy + 6, penX + 8 - (gx + 30), 12, () -> {
+                if (popup instanceof PopupState.RenameInput) {
+                    popup = new PopupState.None();
+                } else {
+                    popup = new PopupState.RenameInput();
+                    renameBox.setValue(detail.name());
+                    setFocused(renameBox);
+                }
+            });
+        }
         String sub = detail.dim()
             + (detail.parentName() != null ? Component.translatable("arcadiaguard.gui.zonedetail.subzone_of", detail.parentName()).getString() : "");
         String subLabel = font.plainSubstrByWidth(sub, nameMaxW);
@@ -1196,8 +1234,21 @@ public final class ZoneDetailScreen extends Screen {
 
         boolean isWhitelist = popup instanceof PopupState.WhitelistInput;
         boolean isParent    = popup instanceof PopupState.ParentInput;
+        boolean isRename    = popup instanceof PopupState.RenameInput;
+        if (!isRename) renameBox.setVisible(false);
 
-        if (isWhitelist) {
+        if (isRename) {
+            g.fill(cx, cy, cx + cw, cy + 20, Colors.SLOT_BG);
+            g.fill(cx, cy, cx + cw, cy + 1, Colors.LINE_STRONG);
+            g.drawString(font, Component.translatable("arcadiaguard.gui.zonedetail.rename_label").getString(), cx + 2, cy + 12 - font.lineHeight / 2, Colors.TEXT_MUTE, false);
+            renameBox.setX(cx + 72);
+            renameBox.setY(cy + 3);
+            renameBox.setWidth(cw - 76);
+            renameBox.setVisible(true);
+            whitelistBox.setVisible(false);
+            parentBox.setVisible(false);
+            cy += 24;
+        } else if (isWhitelist) {
             g.fill(cx, cy, cx + cw, cy + 20, Colors.SLOT_BG);
             g.fill(cx, cy, cx + cw, cy + 1, Colors.LINE_STRONG);
             g.drawString(font, Component.translatable("arcadiaguard.gui.zonedetail.add_player_label").getString(), cx + 2, cy + 12 - font.lineHeight / 2, Colors.TEXT_MUTE, false);
@@ -1224,7 +1275,7 @@ public final class ZoneDetailScreen extends Screen {
 
         List<MemberEntry> members = detail.members();
         int listH  = GUI_H - HEADER_H - FOOTER_H - 52;
-        if (isWhitelist || isParent) listH -= 24;
+        if (isWhitelist || isParent || isRename) listH -= 24;
         int maxVis = listH / MBR_H;
         int end    = Math.min(memberScroll + maxVis + 1, members.size());
 
@@ -1497,7 +1548,7 @@ public final class ZoneDetailScreen extends Screen {
         int imx = (int) mx;
         if (imx >= col3X) {
             boolean extraRow = popup instanceof PopupState.WhitelistInput
-                || popup instanceof PopupState.ParentInput;
+                || popup instanceof PopupState.ParentInput || popup instanceof PopupState.RenameInput;
             int mListH  = GUI_H - HEADER_H - FOOTER_H - 52 - (extraRow ? 24 : 0);
             int mMaxVis = mListH / MBR_H;
             memberScroll = Mth.clamp((int)(memberScroll - dy),
@@ -1532,15 +1583,22 @@ public final class ZoneDetailScreen extends Screen {
                 return true;
             }
             if (popup instanceof PopupState.CoordsEditor) { popup = new PopupState.None(); return true; }
-            if (popup instanceof PopupState.WhitelistInput || popup instanceof PopupState.ParentInput) {
+            if (popup instanceof PopupState.WhitelistInput || popup instanceof PopupState.ParentInput
+                    || popup instanceof PopupState.RenameInput) {
                 popup = new PopupState.None();
                 return true;
             }
         }
-        // ENTER/KP_ENTER : confirme les popups d'input (whitelist add, parent)
+        // ENTER/KP_ENTER : confirme les popups d'input (whitelist add, parent, rename)
         if ((keyCode == 257 || keyCode == 335)
-                && (popup instanceof PopupState.WhitelistInput || popup instanceof PopupState.ParentInput)) {
-            if (popup instanceof PopupState.WhitelistInput && whitelistBox != null) {
+                && (popup instanceof PopupState.WhitelistInput || popup instanceof PopupState.ParentInput
+                    || popup instanceof PopupState.RenameInput)) {
+            if (popup instanceof PopupState.RenameInput && renameBox != null) {
+                String newName = renameBox.getValue().trim();
+                if (!newName.isEmpty() && !newName.equals(detail.name()))
+                    PacketDistributor.sendToServer(GuiActionPayload.renameZone(detail.name(), newName));
+                renameBox.setValue("");
+            } else if (popup instanceof PopupState.WhitelistInput && whitelistBox != null) {
                 String name = whitelistBox.getValue().trim();
                 if (!name.isEmpty())
                     PacketDistributor.sendToServer(GuiActionPayload.whitelistAdd(detail.name(), name));

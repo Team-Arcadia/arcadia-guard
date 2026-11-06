@@ -10,6 +10,7 @@ import com.arcadia.arcadiaguard.compat.luckperms.LuckPermsCompat;
 import com.arcadia.arcadiaguard.api.event.FlagChangedEvent;
 import com.arcadia.arcadiaguard.api.event.ZoneCreatedEvent;
 import com.arcadia.arcadiaguard.api.event.ZoneRemovedEvent;
+import com.arcadia.arcadiaguard.api.event.ZoneRenamedEvent;
 import com.arcadia.arcadiaguard.persist.ZoneSerializer;
 import com.arcadia.arcadiaguard.util.DimensionUtils;
 import java.io.IOException;
@@ -247,6 +248,25 @@ public final class InternalZoneProvider implements ZoneProvider {
         FlagMixinHelper.invalidateHasZoneCache(dimKey);
         NeoForge.EVENT_BUS.post(new ZoneRemovedEvent(removed));
         return true;
+    }
+
+    /**
+     * Renames a zone in {@code level}'s dimension. Rebuilds the zone under the new name
+     * (all state preserved), re-parents child zones, moves the file on disk, rebuilds the
+     * spatial index and fires {@link ZoneRenamedEvent} on success.
+     */
+    public ZoneRenamer.Status rename(Level level, String oldName, String newName) {
+        String dimKey = DimensionUtils.keyOf(level);
+        ZoneRenamer.Result r = ZoneRenamer.rename(this.zonesByDimension.get(dimKey), oldName, newName);
+        if (!r.success()) return r.status();
+        rebuildDimIndex(dimKey);
+        scheduleDeletion(dimKey, r.oldZone().name());
+        scheduleWrite(r.newZone());
+        for (ProtectedZone child : r.children()) scheduleWrite(child);
+        FlagMixinHelper.invalidateHasZoneCache(dimKey);
+        FlagMixinHelper.invalidateFlagCache(dimKey);
+        NeoForge.EVENT_BUS.post(new ZoneRenamedEvent(r.newZone(), r.oldZone().name()));
+        return ZoneRenamer.Status.OK;
     }
 
     @Override

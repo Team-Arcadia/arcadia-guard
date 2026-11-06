@@ -197,6 +197,10 @@ public final class GuiActionHandler {
                     if (!canAccessZone(player, payload.zoneName(), ZoneRole.OWNER)) return;
                     itemBlockChange(player, payload, false);
                 }
+                case RENAME_ZONE -> {
+                    if (!canAccessZone(player, payload.zoneName(), ZoneRole.OWNER)) return;
+                    renameZone(player, payload.zoneName(), payload.arg1());
+                }
             }
         });
     }
@@ -292,6 +296,33 @@ public final class GuiActionHandler {
             ArcadiaGuard.zoneManager().sendRefreshedList(player);
         } else {
             player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_not_found", zoneName).withStyle(ChatFormatting.RED));
+        }
+    }
+
+    private static void renameZone(ServerPlayer player, String oldName, String raw) {
+        String newName = ArcadiaGuardPaths.normalizeZoneName(raw);
+        if (newName.isEmpty() || !ArcadiaGuardPaths.isValidZoneName(newName)) {
+            player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_name_invalid").withStyle(ChatFormatting.RED));
+            return;
+        }
+        var event = new ZoneLifecycleEvent.RenameZone(player, resolveZoneLevel(player, oldName), oldName, newName);
+        NeoForge.EVENT_BUS.post(event);
+        switch (event.status()) {
+            case OK -> {
+                ArcadiaGuard.LOGGER.info("[ArcadiaGuard] {} renamed zone '{}' to '{}'",
+                    player.getGameProfile().getName(), oldName, newName);
+                player.sendSystemMessage(Component.translatable("arcadiaguard.gui.action.zone_renamed", oldName, newName)
+                    .withStyle(ChatFormatting.GREEN));
+                com.arcadia.arcadiaguard.command.sub.ZoneCommands.notifyRenamed(player.getServer(), oldName);
+                ArcadiaGuard.zoneManager().sendRefreshedList(player);
+                ArcadiaGuard.zoneManager().sendDetailToPlayer(player, newName);
+            }
+            case ALREADY_EXISTS -> player.sendSystemMessage(
+                Component.translatable("arcadiaguard.gui.action.zone_exists").withStyle(ChatFormatting.RED));
+            case INVALID_NAME -> player.sendSystemMessage(
+                Component.translatable("arcadiaguard.gui.action.zone_name_invalid").withStyle(ChatFormatting.RED));
+            case NOT_FOUND -> player.sendSystemMessage(
+                Component.translatable("arcadiaguard.gui.action.zone_not_found", oldName).withStyle(ChatFormatting.RED));
         }
     }
 

@@ -62,6 +62,10 @@ public final class ZoneCommands {
                 .then(argument("name", StringArgumentType.word())
                     .then(argument("newname", StringArgumentType.word())
                         .executes(ZoneCommands::copy))))
+            .then(literal("rename")
+                .then(argument("name", StringArgumentType.word())
+                    .then(argument("newname", StringArgumentType.word())
+                        .executes(ZoneCommands::rename))))
             .then(literal("parent")
                 .then(literal("set")
                     .then(argument("name", StringArgumentType.word())
@@ -236,6 +240,46 @@ public final class ZoneCommands {
             ctx.getSource().sendSuccess(() -> Component.translatable("arcadiaguard.command.zone.already_exists", newName), true);
         }
         return added ? 1 : 0;
+    }
+
+    private static int rename(CommandContext<CommandSourceStack> ctx) {
+        String name = StringArgumentType.getString(ctx, "name").toLowerCase(java.util.Locale.ROOT);
+        if (!com.arcadia.arcadiaguard.command.ZonePermission.hasAccess(ctx.getSource(), name,
+                com.arcadia.arcadiaguard.zone.ZoneRole.OWNER)) {
+            ctx.getSource().sendFailure(Component.translatable("arcadiaguard.command.zone.no_permission", name));
+            return 0;
+        }
+        String raw = StringArgumentType.getString(ctx, "newname");
+        String newName = com.arcadia.arcadiaguard.ArcadiaGuardPaths.normalizeZoneName(raw);
+        if (newName.isEmpty() || !VALID_NAME.matcher(newName).matches()) {
+            ctx.getSource().sendFailure(Component.translatable("arcadiaguard.command.zone.invalid_name", raw));
+            return 0;
+        }
+        var status = ArcadiaGuard.zoneManager().rename(ctx.getSource().getLevel(), name, newName);
+        switch (status) {
+            case OK -> {
+                notifyRenamed(ctx.getSource().getServer(), name);
+                ctx.getSource().sendSuccess(() -> Component.translatable(
+                    "arcadiaguard.command.zone.renamed", name, newName), true);
+                return 1;
+            }
+            case NOT_FOUND -> ctx.getSource().sendFailure(
+                Component.translatable("arcadiaguard.command.zone.not_found", name));
+            case ALREADY_EXISTS -> ctx.getSource().sendFailure(
+                Component.translatable("arcadiaguard.command.zone.already_exists", newName));
+            case INVALID_NAME -> ctx.getSource().sendFailure(
+                Component.translatable("arcadiaguard.command.zone.invalid_name", raw));
+        }
+        return 0;
+    }
+
+    /** Purges the old name from every client's render cache (same as a zone removal). */
+    public static void notifyRenamed(net.minecraft.server.MinecraftServer server, String oldName) {
+        if (server == null) return;
+        var payload = new com.arcadia.arcadiaguard.network.gui.ZoneRemovedPayload(oldName);
+        for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp, payload);
+        }
     }
 
     private static int parentSet(CommandContext<CommandSourceStack> ctx) {
