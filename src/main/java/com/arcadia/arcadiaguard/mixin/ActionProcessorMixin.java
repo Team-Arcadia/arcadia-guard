@@ -1,7 +1,7 @@
 package com.arcadia.arcadiaguard.mixin;
 
 import com.arcadia.arcadiaguard.client.ClientParcoolState;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.tick.PlayerTickEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;

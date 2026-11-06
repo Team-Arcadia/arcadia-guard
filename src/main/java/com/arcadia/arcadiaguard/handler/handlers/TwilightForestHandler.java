@@ -9,8 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 
 /**
  * Blocks Twilight Forest projectiles (IceBomb, LichBomb, HydraMortar, etc.) from

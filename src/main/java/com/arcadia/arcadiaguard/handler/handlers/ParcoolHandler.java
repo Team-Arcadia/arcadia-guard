@@ -6,8 +6,8 @@ import com.arcadia.arcadiaguard.handler.HandlerRegistry.DynamicEventHandler;
 import com.arcadia.arcadiaguard.zone.ProtectedZone;
 import java.util.Optional;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.ICancellableEvent;
 
 /**
  * Blocks parkour actions (ParCool mod) inside protected zones when PARCOOL_ACTIONS=deny.

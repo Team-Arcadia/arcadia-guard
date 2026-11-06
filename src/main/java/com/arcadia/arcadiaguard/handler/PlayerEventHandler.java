@@ -21,9 +21,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.tick.PlayerTickEvent;
 
 public final class PlayerEventHandler
         implements HandlerRegistry.RightClickBlockHandler, HandlerRegistry.RightClickItemHandler {
@@ -216,7 +216,7 @@ public final class PlayerEventHandler
         Boolean wasBlocked = playerParcoolBlocked.get(id);
         if (wasBlocked == null || wasBlocked != parcoolBlocked) {
             playerParcoolBlocked.put(id, parcoolBlocked);
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+            net.minecraftforge.network.PacketDistributor.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.ParcoolBlockedPayload(parcoolBlocked));
             // Message one-shot via CHAT (pas actionbar — actionbar MC 1.21 avec FancyMenu
@@ -245,7 +245,7 @@ public final class PlayerEventHandler
         Boolean wasEmoteBlocked = playerEmoteBlocked.get(id);
         if (wasEmoteBlocked == null || wasEmoteBlocked != emoteBlocked) {
             playerEmoteBlocked.put(id, emoteBlocked);
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+            net.minecraftforge.network.PacketDistributor.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.EmoteBlockedPayload(emoteBlocked));
             if (emoteBlocked) {
@@ -266,7 +266,7 @@ public final class PlayerEventHandler
         Boolean wasJadeOverlayBlocked = playerJadeOverlayBlocked.get(id);
         if (wasJadeOverlayBlocked == null || wasJadeOverlayBlocked != jadeOverlayBlocked) {
             playerJadeOverlayBlocked.put(id, jadeOverlayBlocked);
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+            net.minecraftforge.network.PacketDistributor.sendToPlayer(
                 player,
                 new com.arcadia.arcadiaguard.network.gui.JadeOverlayBlockedPayload(jadeOverlayBlocked));
         }
@@ -442,7 +442,7 @@ public final class PlayerEventHandler
         if (active && !has) {
             inst.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
                 APOTH_FLY_MODIFIER_ID, -1000.0D,
-                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
         } else if (!active && has) {
             inst.removeModifier(APOTH_FLY_MODIFIER_ID);
         }

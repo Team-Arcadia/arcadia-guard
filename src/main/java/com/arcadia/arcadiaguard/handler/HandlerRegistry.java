@@ -20,30 +20,30 @@ import com.arcadia.arcadiaguard.handler.handlers.SophisticatedStorageHandler;
 import com.arcadia.arcadiaguard.handler.handlers.SupplementariesHandler;
 import com.arcadia.arcadiaguard.util.ReflectionHelper;
 import java.util.List;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
-import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
-import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
-import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
-import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.BlockDropsEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.neoforge.event.entity.player.BonemealEvent;
-import net.neoforged.neoforge.event.level.block.CropGrowEvent;
-import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.ItemEntityPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.BlockDropsEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
+import net.minecraftforge.event.entity.player.BonemealEvent;
+import net.minecraftforge.event.level.block.CropGrowEvent;
+import net.minecraftforge.event.level.BlockGrowFeatureEvent;
+import net.minecraftforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.tick.PlayerTickEvent;
 
 public final class HandlerRegistry {
 
@@ -131,17 +131,17 @@ public final class HandlerRegistry {
         NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class, playerEventHandler::onPlayerLogout);
         NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedInEvent.class, EasterEggHandler::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(PlayerEvent.PlayerLoggedOutEvent.class, EasterEggHandler::onPlayerLogout);
-        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class, EasterEggHandler::onServerTick);
+        NeoForge.EVENT_BUS.addListener(net.minecraftforge.event.tick.ServerTickEvent.Post.class, EasterEggHandler::onServerTick);
         // VanillaExtraHandler : flags vanilla additionnels
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, vanillaExtraHandler::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent.class, vanillaExtraHandler::onTravelDim);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, net.minecraftforge.event.entity.EntityTravelToDimensionEvent.class, vanillaExtraHandler::onTravelDim);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, BlockEvent.BlockToolModificationEvent.class, vanillaExtraHandler::onBlockToolModification);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickBlock.class, vanillaExtraHandler::onBucketUse);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, PlayerInteractEvent.RightClickItem.class, vanillaExtraHandler::onBucketUseItem);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.neoforged.neoforge.event.ServerChatEvent.class, vanillaExtraHandler::onChat);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.neoforged.neoforge.event.CommandEvent.class, vanillaExtraHandler::onCommand);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingIncomingDamageEvent.class, entityEventHandler::onLivingIncomingDamage);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, net.neoforged.neoforge.event.entity.living.LivingDeathEvent.class, entityEventHandler::onLivingDeath);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.ServerChatEvent.class, vanillaExtraHandler::onChat);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, true, net.minecraftforge.event.CommandEvent.class, vanillaExtraHandler::onCommand);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingAttackEvent.class, entityEventHandler::onLivingIncomingDamage);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, net.minecraftforge.event.entity.living.LivingDeathEvent.class, entityEventHandler::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, true, LivingFallEvent.class, entityEventHandler::onLivingFall);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, FinalizeSpawnEvent.class, entityEventHandler::onMobSpawn);
         // LOWEST : cancel le spawn si un autre mod a discard l'entite (anti-spam Hominid-like).
@@ -157,7 +157,7 @@ public final class HandlerRegistry {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, PlayerInteractEvent.EntityInteract.class, sophisticatedStorageHandler::onEntityInteract);
         // S-H16 T7 : SimplySwords abilities declenchees au chargement de l'item
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false,
-            net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent.Start.class,
+            net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Start.class,
             simplySwordsHandlerRef::onUseItemStart);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickBlock.class, flagEventHandler::onRightClickBlock);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, PlayerInteractEvent.RightClickItem.class, flagEventHandler::onRightClickItem);
@@ -223,7 +223,7 @@ public final class HandlerRegistry {
             new Class<?>[] { String.class }, handler.eventClassName()).orElse(null);
         if (!(eventClass instanceof Class<?> clazz)) return;
         // H11: guard against non-Event classes being passed to addListener
-        if (!net.neoforged.bus.api.Event.class.isAssignableFrom(clazz)) {
+        if (!net.minecraftforge.eventbus.api.Event.class.isAssignableFrom(clazz)) {
             ArcadiaGuard.LOGGER.warn("[ArcadiaGuard] Skipping handler {}: {} is not an Event subclass",
                 handler.getClass().getSimpleName(), clazz.getName());
             return;

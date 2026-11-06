@@ -57,3 +57,6 @@ PATCHNOTES-*.md
 # Local documentation exports
 docs/ArcadiaGuard-Guide-Utilisateur-1.21.1.docx
 docs/ArcadiaGuard-Guide-Utilisateur-1.21.1.pdf
+
+# Port workspace
+_temp/

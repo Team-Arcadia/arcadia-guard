@@ -19,13 +19,13 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
+import net.minecraftforge.event.tick.EntityTickEvent;
 
 public final class EntityEventHandler {
 
@@ -35,7 +35,7 @@ public final class EntityEventHandler {
         this.guard = guard;
     }
 
-    public void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+    public void onLivingIncomingDamage(LivingAttackEvent event) {
         LivingEntity victim = event.getEntity();
         Level level = victim.level();
         if (level.isClientSide()) return;
@@ -115,7 +115,7 @@ public final class EntityEventHandler {
 
     /**
      * Filet de sécurité contre les bypasses {@code entity.kill()} et {@code setHealth(0)} qui
-     * sautent {@link LivingIncomingDamageEvent}. Restaure la vie à 1 PV pour les flags
+     * sautent {@link LivingAttackEvent}. Restaure la vie à 1 PV pour les flags
      * d'invincibilité (joueur / animal). Les autres flags (PVP, MOB_DAMAGE) ne sont pas
      * traités ici car leur sémantique ne couvre pas explicitement le kill direct.
      */

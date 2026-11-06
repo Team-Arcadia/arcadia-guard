@@ -1,7 +1,7 @@
 package com.arcadia.arcadiaguard.client;
 
 import com.arcadia.arcadiaguard.ArcadiaGuard;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 /**
  * Client-side : enregistre un verifier sur {@code ClientEmoteEvents.EMOTE_VERIFICATION}

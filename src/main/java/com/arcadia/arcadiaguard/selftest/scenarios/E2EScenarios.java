@@ -40,10 +40,10 @@ public final class E2EScenarios {
             // les flags MOB_SPAWN/MONSTER_SPAWN/ANIMAL_SPAWN. On post l'event soi-meme
             // et on verifie isSpawnCancelled() (pas isCanceled() qui correspond a un
             // veto plus fort).
-            var event = new net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent(
+            var event = new net.minecraftforge.event.entity.living.FinalizeSpawnEvent(
                 zombie, ctx.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                 ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
-            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(event);
+            net.minecraftforge.common.NeoForge.EVENT_BUS.post(event);
             if (event.isSpawnCancelled() || event.isCanceled()) {
                 return ScenarioResult.pass(id(), "spawn cancel par AG", ms(start));
             }
@@ -64,10 +64,10 @@ public final class E2EScenarios {
             BlockPos pos = ctx.player().blockPosition().offset(3, 0, 0);
             cow.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
 
-            var event = new net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent(
+            var event = new net.minecraftforge.event.entity.living.FinalizeSpawnEvent(
                 cow, ctx.level(), pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                 ctx.level().getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null, null);
-            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(event);
+            net.minecraftforge.common.NeoForge.EVENT_BUS.post(event);
             if (event.isSpawnCancelled() || event.isCanceled()) {
                 return ScenarioResult.pass(id(), ms(start));
             }
@@ -126,7 +126,7 @@ public final class E2EScenarios {
             var face = net.minecraft.core.Direction.UP;
             var hitResult = new net.minecraft.world.phys.BlockHitResult(
                 net.minecraft.world.phys.Vec3.atCenterOf(pos), face, pos, false);
-            var result = net.neoforged.neoforge.common.CommonHooks.onRightClickBlock(
+            var result = net.minecraftforge.common.CommonHooks.onRightClickBlock(
                 ctx.player(), hand, pos, hitResult);
             BlockState after = ctx.level().getBlockState(pos);
             ctx.restoreBlock(pos, snap);

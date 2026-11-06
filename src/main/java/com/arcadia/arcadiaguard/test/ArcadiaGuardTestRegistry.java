@@ -1,7 +1,7 @@
 package com.arcadia.arcadiaguard.test;
 
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.event.RegisterGameTestsEvent;
 
 /**
  * Registers ArcadiaGuard GameTest methods with the NeoForge GameTest framework.

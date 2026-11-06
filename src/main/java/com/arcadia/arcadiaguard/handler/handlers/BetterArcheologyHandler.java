@@ -12,8 +12,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import java.util.concurrent.atomic.AtomicBoolean;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.level.BlockEvent;
 import org.slf4j.LoggerFactory;
 
 public final class BetterArcheologyHandler implements BlockBreakHandler {

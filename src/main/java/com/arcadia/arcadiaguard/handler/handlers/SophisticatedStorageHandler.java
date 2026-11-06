@@ -11,8 +11,8 @@ import net.minecraft.world.entity.vehicle.AbstractMinecartContainer;
 import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * S-H16 T1 : bloque l'acces aux conteneurs Sophisticated Storage

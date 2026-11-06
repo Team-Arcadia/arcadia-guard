@@ -6,8 +6,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 
 /**
  * Prevents mutant monsters (Mutant Monsters mod) from spawning inside protected zones

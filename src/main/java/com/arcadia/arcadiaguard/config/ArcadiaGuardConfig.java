@@ -1,47 +1,47 @@
 package com.arcadia.arcadiaguard.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class ArcadiaGuardConfig {
 
-    public static final ModConfigSpec SPEC;
-    public static final ModConfigSpec.BooleanValue ENABLE_LOGGING;
-    public static final ModConfigSpec.BooleanValue LOG_TO_FILE;
-    public static final ModConfigSpec.BooleanValue DEBUG;
-    public static final ModConfigSpec.IntValue BYPASS_OP_LEVEL;
-    public static final ModConfigSpec.BooleanValue ENABLE_BLOCK_BREAK;
-    public static final ModConfigSpec.BooleanValue ENABLE_BLOCK_PLACE;
-    public static final ModConfigSpec.BooleanValue ENABLE_IRONSSPELLBOOKS;
-    public static final ModConfigSpec.BooleanValue ENABLE_ARS_NOUVEAU;
-    public static final ModConfigSpec.BooleanValue ENABLE_SIMPLYSWORDS;
-    public static final ModConfigSpec.BooleanValue ENABLE_OCCULTISM;
-    public static final ModConfigSpec.BooleanValue ENABLE_SUPPLEMENTARIES;
-    public static final ModConfigSpec.BooleanValue ENABLE_APOTHEOSIS_ENCHANTS;
-    public static final ModConfigSpec.BooleanValue ENABLE_BETTERARCHEOLOGY;
-    public static final ModConfigSpec.BooleanValue ENABLE_SPAWN_BOOK_PROTECTION;
-    public static final ModConfigSpec.BooleanValue ENABLE_LEAD_PROTECTION;
-    public static final ModConfigSpec.BooleanValue ENABLE_SPAWN_EGG_PROTECTION;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_BLOCK_BREAK;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_BLOCK_PLACE;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_IRONSSPELLBOOKS;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_ARS_NOUVEAU;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_SIMPLYSWORDS;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_OCCULTISM;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_SUPPLEMENTARIES;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_APOTHEOSIS;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_BETTERARCHEOLOGY;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_SPAWN_BOOK;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_LEAD;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_SPAWN_EGG;
-    public static final ModConfigSpec.ConfigValue<String> MESSAGE_DYNAMIC_ITEM;
+    public static final ForgeConfigSpec SPEC;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_LOGGING;
+    public static final ForgeConfigSpec.BooleanValue LOG_TO_FILE;
+    public static final ForgeConfigSpec.BooleanValue DEBUG;
+    public static final ForgeConfigSpec.IntValue BYPASS_OP_LEVEL;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_BLOCK_BREAK;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_BLOCK_PLACE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_IRONSSPELLBOOKS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_ARS_NOUVEAU;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SIMPLYSWORDS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_OCCULTISM;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SUPPLEMENTARIES;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_APOTHEOSIS_ENCHANTS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_BETTERARCHEOLOGY;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_BOOK_PROTECTION;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_LEAD_PROTECTION;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_EGG_PROTECTION;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_BLOCK_BREAK;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_BLOCK_PLACE;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_IRONSSPELLBOOKS;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_ARS_NOUVEAU;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_SIMPLYSWORDS;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_OCCULTISM;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_SUPPLEMENTARIES;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_APOTHEOSIS;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_BETTERARCHEOLOGY;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_SPAWN_BOOK;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_LEAD;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_SPAWN_EGG;
+    public static final ForgeConfigSpec.ConfigValue<String> MESSAGE_DYNAMIC_ITEM;
 
-    public static final ModConfigSpec.IntValue ASYNC_WRITER_CAPACITY;
-    public static final ModConfigSpec.ConfigValue<String> ASYNC_WRITER_POLICY;
+    public static final ForgeConfigSpec.IntValue ASYNC_WRITER_CAPACITY;
+    public static final ForgeConfigSpec.ConfigValue<String> ASYNC_WRITER_POLICY;
 
-    public static final ModConfigSpec.ConfigValue<java.util.List<? extends String>> DISABLED_FLAG_FREQUENCIES;
+    public static final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> DISABLED_FLAG_FREQUENCIES;
 
     static {
-        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("general");
         ENABLE_LOGGING = builder.define("enable_logging", true);

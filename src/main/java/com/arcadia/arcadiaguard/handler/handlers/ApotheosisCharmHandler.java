@@ -16,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Blocks Apotheosis charm activation inside protected zones when CHARM_USE=deny.

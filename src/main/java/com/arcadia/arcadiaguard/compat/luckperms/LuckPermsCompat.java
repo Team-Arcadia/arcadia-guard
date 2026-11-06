@@ -5,8 +5,8 @@ import com.arcadia.arcadiaguard.util.ReflectionHelper;
 import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 /**
  * Optional LuckPerms integration. Detected at runtime via ModList — zero compile dependency.

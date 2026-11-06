@@ -8,9 +8,9 @@ import com.arcadia.arcadiaguard.gui.ZoneLogsScreen;
 import com.arcadia.arcadiaguard.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.NeoForge;
 
 @OnlyIn(Dist.CLIENT)
 public final class ArcadiaGuardClient {

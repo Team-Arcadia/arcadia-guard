@@ -48,17 +48,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
-import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
-import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.entity.player.BonemealEvent;
-import net.neoforged.neoforge.event.level.block.CropGrowEvent;
-import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.ItemEntityPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.entity.player.BonemealEvent;
+import net.minecraftforge.event.level.block.CropGrowEvent;
+import net.minecraftforge.event.level.BlockGrowFeatureEvent;
 
 /** Catch-all handler for flags that don't fit elsewhere. */
 public final class FlagEventHandler {
@@ -294,7 +294,7 @@ public final class FlagEventHandler {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         if (guard.shouldBypass(player)) return;
         if (guard.isZoneDenying(player.level(), player.blockPosition(), BuiltinFlags.ITEM_PICKUP)) {
-            event.setCanPickup(net.neoforged.neoforge.common.util.TriState.FALSE);
+            event.setCanPickup(net.minecraftforge.common.util.TriState.FALSE);
         }
     }
 

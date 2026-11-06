@@ -14,10 +14,10 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.event.entity.living.FinalizeSpawnEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
+import net.minecraftforge.event.level.BlockEvent;
 
 /**
  * Vrais E2E qui postent directement l'event sur EVENT_BUS et observent les flags

@@ -31,10 +31,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.handling.IPayloadContext;
 
 /** Traite toutes les actions C→S émises depuis le GUI de gestion des zones. */
 public final class GuiActionHandler {
@@ -287,7 +287,7 @@ public final class GuiActionHandler {
             // sinon une zone "Voir : ON" reste dessinee apres suppression.
             var payload = new com.arcadia.arcadiaguard.network.gui.ZoneRemovedPayload(zoneName);
             for (ServerPlayer sp : player.getServer().getPlayerList().getPlayers()) {
-                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(sp, payload);
+                net.minecraftforge.network.PacketDistributor.sendToPlayer(sp, payload);
             }
             ArcadiaGuard.zoneManager().sendRefreshedList(player);
         } else {

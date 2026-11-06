@@ -14,9 +14,9 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.PacketDistributor;
 
 @OnlyIn(Dist.CLIENT)
 public final class ZoneDetailScreen extends Screen {
@@ -1114,7 +1114,7 @@ public final class ZoneDetailScreen extends Screen {
             int iy = blockedTop + i * ITEM_ROW_H;
             int xbtnX = px + pw - 22;
             if (mx >= xbtnX && mx < xbtnX + 14 && my >= iy && my < iy + ITEM_ROW_H) {
-                net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                net.minecraftforge.network.PacketDistributor.sendToServer(
                     GuiActionPayload.itemBlockRemove(detail.name(), blockedList.get(i)));
                 return true;
             }
@@ -1131,7 +1131,7 @@ public final class ZoneDetailScreen extends Screen {
             int iy = listTop + (i - itemPickerScroll) * ITEM_ROW_H;
             int addX = px + pw - 22;
             if (mx >= addX && mx < addX + 14 && my >= iy && my < iy + ITEM_ROW_H) {
-                net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                net.minecraftforge.network.PacketDistributor.sendToServer(
                     GuiActionPayload.itemBlockAdd(detail.name(), results.get(i).toString()));
                 return true;
             }

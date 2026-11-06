@@ -3,7 +3,7 @@ package com.arcadia.arcadiaguard.event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Events fired on NeoForge.EVENT_BUS when zone lifecycle operations are requested.

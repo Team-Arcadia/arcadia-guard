@@ -9,10 +9,10 @@ import com.arcadia.arcadiaguard.network.gui.ParcoolBlockedPayload;
 import com.arcadia.arcadiaguard.network.gui.ZoneDetailPayload;
 import com.arcadia.arcadiaguard.network.gui.ZoneLogsPayload;
 import com.arcadia.arcadiaguard.network.gui.ZoneRemovedPayload;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.network.event.RegisterPayloadHandlerEvent;
+import net.minecraftforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.registration.PayloadRegistrar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,7 +62,7 @@ public final class PacketHandler {
         modBus.addListener(PacketHandler::onRegisterPayloads);
     }
 
-    private static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
+    private static void onRegisterPayloads(RegisterPayloadHandlerEvent event) {
         PayloadRegistrar reg = event.registrar("1");
 
         reg.playToClient(ZoneDataPayload.TYPE,   ZoneDataPayload.STREAM_CODEC,

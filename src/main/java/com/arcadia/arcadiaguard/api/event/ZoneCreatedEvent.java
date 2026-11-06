@@ -1,7 +1,7 @@
 package com.arcadia.arcadiaguard.api.event;
 
 import com.arcadia.arcadiaguard.api.zone.IZone;
-import net.neoforged.bus.api.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Fired on the NeoForge EventBus when a zone is successfully created and persisted.

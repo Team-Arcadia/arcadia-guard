@@ -7,9 +7,9 @@ import com.arcadia.arcadiaguard.network.gui.OpenGuiPayload;
 import com.arcadia.arcadiaguard.network.gui.ZoneDetailPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.handling.IPayloadContext;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientPacketHandlers {

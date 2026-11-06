@@ -21,7 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Blocks leads, spawn eggs, mob buckets, dynamic items, and NPC interactions
@@ -184,7 +184,7 @@ public final class ZoneItemHandler implements RightClickItemHandler, RightClickB
 
     /** S-H20 / tester feedback : bloque aussi le clic gauche (break block) avec un item banni par zone. */
     @Override
-    public void handle(net.neoforged.neoforge.event.level.BlockEvent.BreakEvent event) {
+    public void handle(net.minecraftforge.event.level.BlockEvent.BreakEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer sp)) return;
         ItemStack stack = sp.getMainHandItem();
         if (stack.isEmpty()) return;
@@ -198,7 +198,7 @@ public final class ZoneItemHandler implements RightClickItemHandler, RightClickB
     }
 
     /** Tester feedback: bloque aussi l'attaque sur entite (epee/outil banni) dans la zone. */
-    public void onAttack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent event) {
+    public void onAttack(net.minecraftforge.event.entity.player.AttackEntityEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer sp)) return;
         ItemStack stack = sp.getMainHandItem();
         if (stack.isEmpty()) return;

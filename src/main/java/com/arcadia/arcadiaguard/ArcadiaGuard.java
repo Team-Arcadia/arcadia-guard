@@ -15,16 +15,16 @@ import com.arcadia.arcadiaguard.persist.DimFlagSerializer;
 import com.arcadia.arcadiaguard.zone.DimensionFlagStore;
 import com.arcadia.arcadiaguard.zone.ZoneManager;
 import com.mojang.logging.LogUtils;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.common.NeoForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import org.slf4j.Logger;
 import java.lang.reflect.Method;
 
@@ -64,7 +64,7 @@ public final class ArcadiaGuard {
             new Class<?>[0]);
         // Tick hook pour /ag testsetup all — depile les creations asynchrones tick par tick.
         NeoForge.EVENT_BUS.addListener(
-            (net.neoforged.neoforge.event.tick.ServerTickEvent.Post e) ->
+            (net.minecraftforge.event.tick.ServerTickEvent.Post e) ->
                 onOptionalTestSetupTick());
 
         if (FMLEnvironment.dist == Dist.CLIENT) {

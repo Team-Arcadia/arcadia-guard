@@ -155,7 +155,7 @@ public final class TestSetupCommand {
         List<Flag<?>> flags = new ArrayList<>();
         for (Flag<?> f : ArcadiaGuard.flagRegistry().all()) {
             String mod = f.requiredMod();
-            if (mod.isEmpty() || net.neoforged.fml.ModList.get().isLoaded(mod)) flags.add(f);
+            if (mod.isEmpty() || net.minecraftforge.fml.ModList.get().isLoaded(mod)) flags.add(f);
         }
 
         List<ServerLevel> targetLevels = new ArrayList<>();
@@ -218,7 +218,7 @@ public final class TestSetupCommand {
 
     /**
      * Hook tick serveur : depile jusqu'a {@link #ZONES_PER_TICK} operations par tick.
-     * A brancher sur {@link net.neoforged.neoforge.event.tick.ServerTickEvent.Post} via
+     * A brancher sur {@link net.minecraftforge.event.tick.ServerTickEvent.Post} via
      * NeoForge EVENT_BUS — enregistrement effectue une seule fois dans {@link #build()}.
      */
     public static void onServerTick() {

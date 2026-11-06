@@ -14,12 +14,12 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.CommandEvent;
-import net.neoforged.neoforge.event.ServerChatEvent;
-import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.tick.PlayerTickEvent;
 
 /**
  * Handlers pour les flags vanilla additionnels (parite YAWP) :
@@ -112,7 +112,7 @@ public final class VanillaExtraHandler {
     }
 
     private void handleBucket(net.minecraft.world.entity.player.Player p, ItemStack stack, BlockPos pos,
-                              net.neoforged.neoforge.event.entity.player.PlayerInteractEvent event) {
+                              net.minecraftforge.event.entity.player.PlayerInteractEvent event) {
         if (!(p instanceof ServerPlayer player)) return;
         Level level = player.level();
         if (level.isClientSide()) return;

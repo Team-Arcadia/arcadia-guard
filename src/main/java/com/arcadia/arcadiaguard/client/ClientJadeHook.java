@@ -2,10 +2,10 @@ package com.arcadia.arcadiaguard.client;
 
 import com.arcadia.arcadiaguard.ArcadiaGuard;
 import java.lang.reflect.Proxy;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.client.event.ClientTickEvent;
 
 @OnlyIn(Dist.CLIENT)
 public final class ClientJadeHook {

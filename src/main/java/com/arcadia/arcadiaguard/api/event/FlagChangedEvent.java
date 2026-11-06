@@ -2,7 +2,7 @@ package com.arcadia.arcadiaguard.api.event;
 
 import com.arcadia.arcadiaguard.api.flag.Flag;
 import com.arcadia.arcadiaguard.api.zone.IZone;
-import net.neoforged.bus.api.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Fired on the NeoForge EventBus when a flag value is explicitly set or reset on a zone.

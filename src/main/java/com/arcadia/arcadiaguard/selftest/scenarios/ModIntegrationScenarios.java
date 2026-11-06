@@ -5,7 +5,7 @@ import com.arcadia.arcadiaguard.flag.BuiltinFlags;
 import com.arcadia.arcadiaguard.selftest.Scenario;
 import com.arcadia.arcadiaguard.selftest.ScenarioResult;
 import com.arcadia.arcadiaguard.selftest.TestContext;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 
 /**
  * Scenarios "smoke test" pour les integrations mods tiers : verifie que le mod est

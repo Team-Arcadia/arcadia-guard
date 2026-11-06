@@ -77,7 +77,7 @@ public final class SpellRegistryHelper {
             var field = registryCls.getDeclaredField("SPELLS");
             field.setAccessible(true);
             Object deferred = field.get(null);
-            if (deferred instanceof net.neoforged.neoforge.registries.DeferredRegister<?> dr) {
+            if (deferred instanceof net.minecraftforge.registries.DeferredRegister<?> dr) {
                 for (var holder : dr.getEntries()) {
                     net.minecraft.resources.ResourceLocation rl = holder.getId();
                     if (rl != null) ids.add(rl.toString());

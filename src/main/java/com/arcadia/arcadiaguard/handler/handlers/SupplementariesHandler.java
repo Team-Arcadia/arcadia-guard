@@ -13,8 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 public final class SupplementariesHandler implements RightClickItemHandler {
 

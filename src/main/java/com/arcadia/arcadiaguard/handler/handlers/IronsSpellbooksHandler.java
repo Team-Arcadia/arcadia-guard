@@ -7,9 +7,9 @@ import com.arcadia.arcadiaguard.guard.GuardService;
 import com.arcadia.arcadiaguard.util.ReflectionHelper;
 import java.util.Set;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.NeoForge;
 
 public final class IronsSpellbooksHandler extends AbstractSpellHandler {
 
