@@ -96,6 +96,7 @@ Chaque integration est independante et n'est chargee que si le mod tiers est pre
 | [Waystones](https://www.curseforge.com/minecraft/mc-mods/waystones) | Utilisation et teleportation |
 | [Emotecraft](https://www.curseforge.com/minecraft/mc-mods/emotecraft) | Emotes dans les zones |
 | [Sable: Ragdolls](https://www.curseforge.com/minecraft/mc-mods/sable-ragdolls) | Ragdoll des joueurs (`sable-ragdoll`) |
+| [Insane's Explosion Overhaul](https://www.curseforge.com/minecraft/mc-mods/insanes-explosion-overhaul) | Degats d'explosion et blocs volants dans les zones (flags `creeper-explosion`/`tnt-explosion`/`block-explosion`) |
 | [Jade](https://www.curseforge.com/minecraft/mc-mods/jade) | Overlay d'information bloc/entite |
 | [Sophisticated Storage](https://www.curseforge.com/minecraft/mc-mods/sophisticated-storage) | Coffres custom + minecarts a coffre |
 | [Twilight Forest](https://www.curseforge.com/minecraft/mc-mods/the-twilight-forest) | Projectiles speciaux |

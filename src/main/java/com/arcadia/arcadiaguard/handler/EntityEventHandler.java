@@ -49,6 +49,20 @@ public final class EntityEventHandler {
         String zoneName = zone != null ? zone.name() : "(dimension)";
 
         Entity attacker = event.getSource().getEntity();
+
+        // Defense en profondeur : degats d'explosion sur une entite dans une zone qui refuse
+        // le flag d'explosion correspondant. Le chemin vanilla passe deja par Detonate (liste
+        // filtree), mais des mods d'explosion (ex. Explosion Overhaul) appliquent leurs propres
+        // degats ; on bloque donc aussi au niveau des degats. Feux d'artifice exclus (pas une
+        // Explosion, comportement PvP inchange).
+        BooleanFlag explosionFlag = explosionFlagForDamage(
+            event.getSource().is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION),
+            event.getSource().is(net.minecraft.world.damagesource.DamageTypes.FIREWORKS),
+            event.getSource().getDirectEntity());
+        if (explosionFlag != null && isDenyingHere(zone, level, vpos, explosionFlag)) {
+            event.setCanceled(true);
+            return;
+        }
         if (victim instanceof Player) {
             if (isDenyingHere(zone, level, vpos, BuiltinFlags.INVINCIBLE)) {
                 event.setCanceled(true);
@@ -282,16 +296,11 @@ public final class EntityEventHandler {
                 isMutantCreeperLike = true;
             }
         }
-        if (exploder instanceof Creeper || isMutantCreeperLike) {
-            flag = BuiltinFlags.CREEPER_EXPLOSION;
-        } else if (exploder instanceof PrimedTnt
-                || exploder instanceof MinecartTNT
-                || (exploder == null
-                    && "TNT".equals(explosion.getBlockInteraction().name()))) {
-            flag = BuiltinFlags.TNT_EXPLOSION;
-        } else {
-            flag = BuiltinFlags.BLOCK_EXPLOSION;
-        }
+        flag = explosionFlagFor(exploder,
+            exploder == null && "TNT".equals(explosion.getBlockInteraction().name()));
+        if (isMutantCreeperLike) flag = BuiltinFlags.CREEPER_EXPLOSION;
+        lastDetonate = new DetonateMark(level, level.getGameTime(), explosion.center(),
+            explosion.radius() * 2.0 + 2.0, flag);
 
         // R2 + perf : pre-resoudre la zone a la position d'origine de l'explosion.
         // Si toute la bbox d'explosion est contenue dans cette zone, 1 seul check
@@ -314,6 +323,68 @@ public final class EntityEventHandler {
         affected.removeIf(pos -> guard.isZoneDenying(level, pos, finalFlag));
         affectedEntities.removeIf(entity ->
             guard.isZoneDenying(level, entity.blockPosition(), finalFlag));
+    }
+
+    /** Flag d'explosion selon l'entite source directe (creeper / TNT / autre). */
+    static BooleanFlag explosionFlagFor(Entity exploder, boolean tntInteraction) {
+        if (exploder instanceof Creeper) return BuiltinFlags.CREEPER_EXPLOSION;
+        if (exploder instanceof PrimedTnt || exploder instanceof MinecartTNT || tntInteraction) {
+            return BuiltinFlags.TNT_EXPLOSION;
+        }
+        return BuiltinFlags.BLOCK_EXPLOSION;
+    }
+
+    /**
+     * Flag d'explosion a verifier pour un degat, ou null si le degat n'est pas une explosion
+     * (ou est un feu d'artifice). Mutant creepers : namespace mutantmonsters + "creeper".
+     */
+    static BooleanFlag explosionFlagForDamage(boolean isExplosion, boolean isFirework, Entity direct) {
+        if (!isExplosion || isFirework) return null;
+        if (direct != null && !(direct instanceof Creeper)) {
+            var key = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(direct.getType());
+            if (key != null && "mutantmonsters".equals(key.getNamespace()) && key.getPath().contains("creeper")) {
+                return BuiltinFlags.CREEPER_EXPLOSION;
+            }
+        }
+        return explosionFlagFor(direct, false);
+    }
+
+    // ── Blocs tombants issus d'une explosion (Explosion Overhaul "flying blocks") ──────────
+    // Des mods convertissent les blocs souffles en FallingBlockEntity qui peuvent retomber
+    // dans une zone voisine protegee. Ils sont crees de facon synchrone juste apres Detonate :
+    // on marque les FallingBlockEntity qui rejoignent le niveau dans le meme tick, pres du
+    // centre de la derniere explosion, puis on les supprime (sans poser le bloc ni drop) s'ils
+    // entrent dans une zone qui refuse le flag de cette explosion.
+
+    private record DetonateMark(Level level, long gameTime, net.minecraft.world.phys.Vec3 center,
+                                double range, BooleanFlag flag) {}
+
+    private DetonateMark lastDetonate;
+    private final java.util.Map<Entity, BooleanFlag> explosionFallingBlocks = new java.util.WeakHashMap<>();
+
+    public void onFallingBlockJoin(EntityJoinLevelEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.world.entity.item.FallingBlockEntity fbe)) return;
+        Level level = event.getLevel();
+        if (level.isClientSide()) return;
+        DetonateMark mark = lastDetonate;
+        if (mark == null || mark.level() != level || mark.gameTime() != level.getGameTime()) return;
+        if (fbe.position().distanceTo(mark.center()) > mark.range()) return;
+        explosionFallingBlocks.put(fbe, mark.flag());
+    }
+
+    public void onFallingBlockTick(EntityTickEvent.Pre event) {
+        if (explosionFallingBlocks.isEmpty()) return;
+        Entity entity = event.getEntity();
+        BooleanFlag flag = explosionFallingBlocks.get(entity);
+        if (flag == null) return;
+        Level level = entity.level();
+        if (!entity.isAlive()) { explosionFallingBlocks.remove(entity); return; }
+        BlockPos now = entity.blockPosition();
+        BlockPos next = BlockPos.containing(entity.position().add(entity.getDeltaMovement()));
+        if (guard.isZoneDenying(level, now, flag) || guard.isZoneDenying(level, next, flag)) {
+            explosionFallingBlocks.remove(entity);
+            entity.discard();
+        }
     }
 
     /** Renvoie true si tous les blocs+entites affectes sont contenus dans la bbox de la zone. */

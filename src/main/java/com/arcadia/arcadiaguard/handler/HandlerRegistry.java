@@ -150,6 +150,9 @@ public final class HandlerRegistry {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ExplosionEvent.Detonate.class, entityEventHandler::onExplosion);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, playerEventHandler::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, entityEventHandler::onEntityTick);
+        // Blocs tombants issus d'une explosion (Explosion Overhaul) : pas de pose dans une zone protegee
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, false, EntityJoinLevelEvent.class, entityEventHandler::onFallingBlockJoin);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Pre.class, entityEventHandler::onFallingBlockTick);
 
         // FlagEventHandler : interactions / combats / items / téléportations / croissance
         // S-H16 T1 : Sophisticated Storage en HIGHEST — doit s'executer avant FlagEventHandler
