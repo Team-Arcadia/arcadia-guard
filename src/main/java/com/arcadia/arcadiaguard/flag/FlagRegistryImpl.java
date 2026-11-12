@@ -99,6 +99,9 @@ public final class FlagRegistryImpl implements FlagRegistry {
         // Entry / Exit
         register(BuiltinFlags.ENTRY);
         register(BuiltinFlags.EXIT);
+        register(BuiltinFlags.GREETING);
+        register(BuiltinFlags.FAREWELL);
+        register(BuiltinFlags.GAME_MODE);
         // Magic mods
         register(BuiltinFlags.ARS_SPELL_CAST);
         register(BuiltinFlags.ARS_SPELL_BLACKLIST);
@@ -116,11 +119,11 @@ public final class FlagRegistryImpl implements FlagRegistry {
         register(BuiltinFlags.SUPPLEMENTARIES_THROW);
         register(BuiltinFlags.PARCOOL_ACTIONS);
         register(BuiltinFlags.EMOTE_USE);
+        register(BuiltinFlags.JADE_OVERLAY);
         register(BuiltinFlags.MUTANT_MOB_SPAWN);
         register(BuiltinFlags.TF_PROJECTILE);
         register(BuiltinFlags.CHARM_USE);
         register(BuiltinFlags.WAYSTONE_USE);
-        register(BuiltinFlags.RECHISELED_USE);
         register(BuiltinFlags.ARS_ADDITIONS_SCROLL);
         register(BuiltinFlags.ARS_WARP_SCROLL);
         register(BuiltinFlags.CARRYON);

@@ -6,6 +6,7 @@ import com.arcadia.arcadiaguard.guard.GuardService;
 import com.arcadia.arcadiaguard.handler.handlers.ApotheosisCharmHandler;
 import com.arcadia.arcadiaguard.item.ModItems;
 import com.arcadia.arcadiaguard.item.WandItem;
+import com.arcadia.arcadiaguard.util.ZoneTransitionMessages;
 import com.arcadia.arcadiaguard.zone.ProtectedZone;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -38,10 +40,14 @@ public final class PlayerEventHandler
     private final Object2IntOpenHashMap<UUID> tickCounter = new Object2IntOpenHashMap<>();
     private final Map<UUID, String> playerCurrentZone = new ConcurrentHashMap<>();
     private final Map<UUID, BlockPos> lastSafePos = new ConcurrentHashMap<>();
+    private final Map<UUID, GameType> originalGameMode = new ConcurrentHashMap<>();
+    private final Map<UUID, GameType> appliedGameMode = new ConcurrentHashMap<>();
     /** S-H21 : dernier etat envoye au client pour parcool_actions. */
     private final Map<UUID, Boolean> playerParcoolBlocked = new ConcurrentHashMap<>();
     /** Dernier etat envoye au client pour emote_use (verifier client-side Emotecraft). */
     private final Map<UUID, Boolean> playerEmoteBlocked = new ConcurrentHashMap<>();
+    /** Dernier etat envoye au client pour jade_overlay (callback client-side Jade). */
+    private final Map<UUID, Boolean> playerJadeOverlayBlocked = new ConcurrentHashMap<>();
     /** Derniere valeur FLY pour message one-shot a la transition. */
     private final Map<UUID, Boolean> playerFlyBlocked = new ConcurrentHashMap<>();
     /** Derniere fois qu'on a affiche un message parcool/emote a ce joueur (throttle cooldown). */
@@ -83,6 +89,7 @@ public final class PlayerEventHandler
     public void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             UUID id = player.getUUID();
+            restoreGameMode(player);
             WandItem.clearSelection(id);
             playerCurrentZone.remove(id);
             lastSafePos.remove(id);
@@ -95,8 +102,12 @@ public final class PlayerEventHandler
         tickCounter.removeInt(id);
         playerCurrentZone.remove(id);
         lastSafePos.remove(id);
+        if (event.getEntity() instanceof ServerPlayer spLogout) restoreGameMode(spLogout);
+        originalGameMode.remove(id);
+        appliedGameMode.remove(id);
         playerParcoolBlocked.remove(id);
         playerEmoteBlocked.remove(id);
+        playerJadeOverlayBlocked.remove(id);
         playerFlyBlocked.remove(id);
         lastParcoolMsgAt.remove(id);
         lastEmoteMsgAt.remove(id);
@@ -119,9 +130,9 @@ public final class PlayerEventHandler
      */
     public void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (player.isSpectator()) return;
 
         UUID id = player.getUUID();
+        if (player.isSpectator() && !appliedGameMode.containsKey(id)) return;
         int tick = tickCounter.addTo(id, 1) + 1;
         if (tick % ZONE_CHECK_INTERVAL != 0) return;
 
@@ -134,6 +145,10 @@ public final class PlayerEventHandler
         boolean zoneChanged = !java.util.Objects.equals(newZoneName, oldZoneName);
 
         if (zoneChanged) {
+            @SuppressWarnings("unchecked")
+            Optional<ProtectedZone> oldZoneOpt = oldZoneName == null
+                ? Optional.empty()
+                : (Optional<ProtectedZone>)(Optional<?>) guard.zoneManager().get(player.serverLevel(), oldZoneName);
             if (newZoneName != null && zoneOpt.isPresent()) {
                 // Entering a new zone → check ENTRY flag
                 ProtectedZone zone = zoneOpt.get();
@@ -162,14 +177,12 @@ public final class PlayerEventHandler
                 }
             } else if (newZoneName == null && oldZoneName != null) {
                 // Exiting a zone → check EXIT flag (player already outside, just message)
-                @SuppressWarnings("unchecked")
-                Optional<ProtectedZone> prevZone = (Optional<ProtectedZone>)(Optional<?>) guard.zoneManager().get(player.serverLevel(), oldZoneName);
-                if (prevZone.isPresent() && !guard.shouldBypass(player)
-                        && !guard.isZoneMember(player, prevZone.get())) {
-                    boolean exitAllowed = guard.isFlagAllowedOrUnset(prevZone.get(), BuiltinFlags.EXIT, player.serverLevel());
+                if (oldZoneOpt.isPresent() && !guard.shouldBypass(player)
+                        && !guard.isZoneMember(player, oldZoneOpt.get())) {
+                    boolean exitAllowed = guard.isFlagAllowedOrUnset(oldZoneOpt.get(), BuiltinFlags.EXIT, player.serverLevel());
                     if (!exitAllowed) {
                         // Teleport back inside the zone (center, safe Y)
-                        ProtectedZone z = prevZone.get();
+                        ProtectedZone z = oldZoneOpt.get();
                         double cx = (z.minX() + z.maxX()) / 2.0 + 0.5;
                         double cz = (z.minZ() + z.maxZ()) / 2.0 + 0.5;
                         double cy = findSafeY(player.serverLevel(), (int) Math.floor(cx), z.minY(), z.maxY(), (int) Math.floor(cz));
@@ -184,6 +197,8 @@ public final class PlayerEventHandler
                 // Leaving a zone → restore charms if they were suppressed
                 charmHandler.restoreCharms(player);
             }
+            applyGameModeFlag(player, zoneOpt);
+            sendTransitionMessages(player, oldZoneOpt, zoneOpt);
             if (newZoneName != null) playerCurrentZone.put(id, newZoneName);
             else playerCurrentZone.remove(id);
         }
@@ -246,6 +261,16 @@ public final class PlayerEventHandler
             }
         }
 
+        boolean jadeOverlayBlocked = !guard.shouldBypass(player) && !zoneMemberBypass
+            && guard.isZoneDenying(player.serverLevel(), pos, BuiltinFlags.JADE_OVERLAY);
+        Boolean wasJadeOverlayBlocked = playerJadeOverlayBlocked.get(id);
+        if (wasJadeOverlayBlocked == null || wasJadeOverlayBlocked != jadeOverlayBlocked) {
+            playerJadeOverlayBlocked.put(id, jadeOverlayBlocked);
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+                player,
+                new com.arcadia.arcadiaguard.network.gui.JadeOverlayBlockedPayload(jadeOverlayBlocked));
+        }
+
         // FLY : bloque mayfly + attribut neoforge:creative_flight dans la zone ou la dimension.
         // Applique un AttributeModifier negatif (-1000) sur creative_flight en plus de couper mayfly.
         // Necessaire car NeoForge re-set mayfly=true a chaque tick depuis l'attribut (Apotheosis,
@@ -292,6 +317,82 @@ public final class PlayerEventHandler
                 player.getFoodData().eat(feed, 0.5f);
             }
         }
+    }
+
+    private void sendTransitionMessages(ServerPlayer player, Optional<ProtectedZone> oldZoneOpt, Optional<ProtectedZone> newZoneOpt) {
+        @SuppressWarnings("unchecked")
+        Function<String, Optional<ProtectedZone>> lookup =
+            n -> (Optional<ProtectedZone>)(Optional<?>) guard.zoneManager().get(player.serverLevel(), n);
+        if (oldZoneOpt.isPresent()) {
+            var oldFarewell = ZoneTransitionMessages.resolve(oldZoneOpt.get(), ZoneTransitionMessages.Kind.FAREWELL, lookup);
+            var newFarewell = newZoneOpt
+                .map(zone -> ZoneTransitionMessages.resolve(zone, ZoneTransitionMessages.Kind.FAREWELL, lookup))
+                .orElse(null);
+            if (oldFarewell.enabled() && ZoneTransitionMessages.differs(oldFarewell, newFarewell)) {
+                ZoneTransitionMessages.send(player, oldZoneOpt.get(), oldFarewell);
+            }
+        }
+        if (newZoneOpt.isPresent()) {
+            var newGreeting = ZoneTransitionMessages.resolve(newZoneOpt.get(), ZoneTransitionMessages.Kind.GREETING, lookup);
+            var oldGreeting = oldZoneOpt
+                .map(zone -> ZoneTransitionMessages.resolve(zone, ZoneTransitionMessages.Kind.GREETING, lookup))
+                .orElse(null);
+            if (newGreeting.enabled() && ZoneTransitionMessages.differs(oldGreeting, newGreeting)) {
+                ZoneTransitionMessages.send(player, newZoneOpt.get(), newGreeting);
+            }
+        }
+    }
+
+    private void applyGameModeFlag(ServerPlayer player, Optional<ProtectedZone> newZoneOpt) {
+        UUID id = player.getUUID();
+        if (guard.shouldBypass(player) || (newZoneOpt.isPresent() && guard.isZoneMember(player, newZoneOpt.get()))) {
+            restoreGameMode(player);
+            return;
+        }
+        GameType target = newZoneOpt.flatMap(zone -> resolveGameMode(zone, player)).orElse(null);
+        GameType current = player.gameMode.getGameModeForPlayer();
+        if (target == null) {
+            restoreGameMode(player);
+            return;
+        }
+        if (!originalGameMode.containsKey(id)) {
+            originalGameMode.put(id, current);
+        }
+        GameType alreadyApplied = appliedGameMode.get(id);
+        if (alreadyApplied != target || current != target) {
+            player.setGameMode(target);
+            appliedGameMode.put(id, target);
+        }
+    }
+
+    private Optional<GameType> resolveGameMode(ProtectedZone zone, ServerPlayer player) {
+        @SuppressWarnings("unchecked")
+        Function<String, Optional<ProtectedZone>> lookup =
+            n -> (Optional<ProtectedZone>)(Optional<?>) guard.zoneManager().get(player.serverLevel(), n);
+        Function<String, java.util.Map<String, Object>> dimLookup =
+            dim -> com.arcadia.arcadiaguard.ArcadiaGuard.dimFlagStore().flags(dim);
+        String value = FlagResolver.resolve(zone, BuiltinFlags.GAME_MODE, lookup, dimLookup);
+        return gameType(value);
+    }
+
+    private void restoreGameMode(ServerPlayer player) {
+        UUID id = player.getUUID();
+        GameType original = originalGameMode.remove(id);
+        appliedGameMode.remove(id);
+        if (original != null && player.gameMode.getGameModeForPlayer() != original) {
+            player.setGameMode(original);
+        }
+    }
+
+    private static Optional<GameType> gameType(String raw) {
+        if (raw == null || raw.isBlank()) return Optional.empty();
+        return switch (raw.trim().toLowerCase(java.util.Locale.ROOT)) {
+            case "survival" -> Optional.of(GameType.SURVIVAL);
+            case "creative" -> Optional.of(GameType.CREATIVE);
+            case "adventure" -> Optional.of(GameType.ADVENTURE);
+            case "spectator" -> Optional.of(GameType.SPECTATOR);
+            default -> Optional.empty();
+        };
     }
 
     /**

@@ -326,15 +326,13 @@ public final class ZoneDetailScreen extends Screen {
         }
         renderFooter(g, mx, my);
 
-        if (!(popup instanceof PopupState.CoordsEditor)) for (EditBox b : coordBoxes) b.setVisible(false);
+        prepareWidgetVisibilityForBaseRender();
 
         // H-U5: draw focus ring for non-bordered EditBoxes
         drawFocusRingIfFocused(g, whitelistBox);
         drawFocusRingIfFocused(g, parentBox);
-        drawFocusRingIfFocused(g, flagSearchBox);
-        drawFocusRingIfFocused(g, itemSearchBox);
-        if (coordBoxes != null) for (EditBox cb : coordBoxes) drawFocusRingIfFocused(g, cb);
         drawFocusRingIfFocused(g, renameBox);
+        drawFocusRingIfFocused(g, activeFlagSearchBox);
 
         super.render(g, mx, my, delta);
 
@@ -342,6 +340,47 @@ public final class ZoneDetailScreen extends Screen {
         if (popup instanceof PopupState.ItemBlocksPicker) renderItemBlocksPicker(g, mx, my);
         if (popup instanceof PopupState.ConfirmDelete) renderConfirmPopup(g, mx, my);
         if (popup instanceof PopupState.CoordsEditor)  renderCoordsEditor(g, mx, my);
+        renderPopupWidgets(g, mx, my, delta);
+    }
+
+    private boolean hasModalPopup() {
+        return popup instanceof PopupState.FlagPicker
+            || popup instanceof PopupState.ItemBlocksPicker
+            || popup instanceof PopupState.ConfirmDelete
+            || popup instanceof PopupState.CoordsEditor;
+    }
+
+    private void prepareWidgetVisibilityForBaseRender() {
+        if (hasModalPopup()) {
+            if (whitelistBox != null) whitelistBox.setVisible(false);
+            if (parentBox != null) parentBox.setVisible(false);
+            if (renameBox != null) renameBox.setVisible(false);
+            if (activeFlagSearchBox != null) activeFlagSearchBox.setVisible(false);
+            if (flagSearchBox != null) flagSearchBox.setVisible(false);
+            if (itemSearchBox != null) itemSearchBox.setVisible(false);
+            if (coordBoxes != null) for (EditBox b : coordBoxes) b.setVisible(false);
+            return;
+        }
+        if (flagSearchBox != null) flagSearchBox.setVisible(false);
+        if (itemSearchBox != null) itemSearchBox.setVisible(false);
+        if (coordBoxes != null) for (EditBox b : coordBoxes) b.setVisible(false);
+    }
+
+    private void renderPopupWidgets(GuiGraphics g, int mx, int my, float delta) {
+        if (popup instanceof PopupState.FlagPicker && flagSearchBox != null && flagSearchBox.isVisible()) {
+            flagSearchBox.render(g, mx, my, delta);
+            drawFocusRingIfFocused(g, flagSearchBox);
+        } else if (popup instanceof PopupState.ItemBlocksPicker && itemSearchBox != null && itemSearchBox.isVisible()) {
+            itemSearchBox.render(g, mx, my, delta);
+            drawFocusRingIfFocused(g, itemSearchBox);
+        } else if (popup instanceof PopupState.CoordsEditor && coordBoxes != null) {
+            for (EditBox cb : coordBoxes) {
+                if (cb.isVisible()) {
+                    cb.render(g, mx, my, delta);
+                    drawFocusRingIfFocused(g, cb);
+                }
+            }
+        }
     }
 
     // ── Éditeur de coordonnées (popup) ────────────────────────────────────────────
@@ -756,8 +795,10 @@ public final class ZoneDetailScreen extends Screen {
                     editHit(bx, iy + 4, 30, FLAG_H - 8, () ->
                         PacketDistributor.sendToServer(GuiActionPayload.setFlag(detail.name(), ff.id(), !ff.value())));
                 } else {
-                    String preview = f.type() == FlagEntry.TYPE_INT ? f.stringValue()
+                    String preview = f.type() == FlagEntry.TYPE_STRING ? stringPreview(f.id(), f.stringValue())
+                        : f.type() == FlagEntry.TYPE_INT ? f.stringValue()
                         : "[" + (f.stringValue().isEmpty() ? 0 : f.stringValue().split(",").length) + "]";
+                    if (preview.length() > 24) preview = preview.substring(0, 21) + "...";
                     // Aligné à droite, se terminant 4px avant le reset ✕ (bx-18..bx-4)
                     g.drawString(font, preview, bx - 22 - font.width(preview), iy + 7, Colors.TEXT_MUTE, false);
                     boolean hovArrow = mx >= bx + 20 && mx < bx + 34 && my >= iy + 4 && my < iy + FLAG_H - 4;
@@ -767,7 +808,10 @@ public final class ZoneDetailScreen extends Screen {
                         hovArrow ? Colors.ACCENT_HI : Colors.ACCENT);
                     editHit(bx + 20, iy + 4, 14, FLAG_H - 8, () -> {
                         FlagConfigScreen.FlagType t = ff.type() == FlagEntry.TYPE_INT
-                            ? FlagConfigScreen.FlagType.INT : FlagConfigScreen.FlagType.LIST;
+                            ? FlagConfigScreen.FlagType.INT
+                            : ff.type() == FlagEntry.TYPE_STRING
+                            ? FlagConfigScreen.FlagType.STRING
+                            : FlagConfigScreen.FlagType.LIST;
                         minecraft.setScreen(new FlagConfigScreen(
                             ZoneDetailScreen.this, t, FlagConfigScreen.Target.ZONE,
                             detail.name(), ff.id(), ff.label(), ff.description(), ff.stringValue()));
@@ -819,6 +863,13 @@ public final class ZoneDetailScreen extends Screen {
                 || f.label().toLowerCase().contains(search)
                 || f.id().toLowerCase().contains(search))
             .toList();
+    }
+
+    private static String stringPreview(String flagId, String raw) {
+        if (!"greeting".equals(flagId) && !"farewell".equals(flagId)) return raw;
+        int sep = raw.indexOf('|');
+        if (sep <= 0) return raw;
+        return "[" + raw.substring(0, sep) + "] " + raw.substring(sep + 1);
     }
 
     // ── Flag Picker (modal overlay) ───────────────────────────────────────────────
@@ -894,6 +945,8 @@ public final class ZoneDetailScreen extends Screen {
                 ? Component.translatable("arcadiaguard.gui.zonedetail.flag_type.bool").getString()
                 : f.type() == FlagEntry.TYPE_INT
                 ? Component.translatable("arcadiaguard.gui.zonedetail.flag_type.int").getString()
+                : f.type() == FlagEntry.TYPE_STRING
+                ? Component.translatable("arcadiaguard.gui.zonedetail.flag_type.string").getString()
                 : Component.translatable("arcadiaguard.gui.zonedetail.flag_type.list").getString();
             g.drawString(font, typeTag, px + pw - 8 - font.width(typeTag), iy + 7, Colors.TEXT_MUTE, false);
             GuiTextures.dividerH(g, px + 4, iy + PICKER_FLAG_H - 1, pw - 8);
@@ -1357,7 +1410,10 @@ public final class ZoneDetailScreen extends Screen {
                 } else {
                     closePicker();
                     FlagConfigScreen.FlagType t = f.type() == FlagEntry.TYPE_INT
-                        ? FlagConfigScreen.FlagType.INT : FlagConfigScreen.FlagType.LIST;
+                        ? FlagConfigScreen.FlagType.INT
+                        : f.type() == FlagEntry.TYPE_STRING
+                        ? FlagConfigScreen.FlagType.STRING
+                        : FlagConfigScreen.FlagType.LIST;
                     minecraft.setScreen(new FlagConfigScreen(
                         this, t, FlagConfigScreen.Target.ZONE,
                         detail.name(), f.id(), f.label(), f.description(), f.stringValue()));

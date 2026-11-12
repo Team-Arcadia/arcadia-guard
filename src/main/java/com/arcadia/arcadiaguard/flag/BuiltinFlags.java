@@ -4,6 +4,8 @@ import com.arcadia.arcadiaguard.api.flag.BooleanFlag;
 import com.arcadia.arcadiaguard.api.flag.FlagFrequency;
 import com.arcadia.arcadiaguard.api.flag.IntFlag;
 import com.arcadia.arcadiaguard.api.flag.ListFlag;
+import com.arcadia.arcadiaguard.api.flag.StringFlag;
+import java.util.List;
 
 /**
  * Declares all ~60 built-in flags shipped with ArcadiaGuard.
@@ -78,6 +80,9 @@ public final class BuiltinFlags {
     // --- Entry / Exit ---
     public static final BooleanFlag ENTRY              = new BooleanFlag("entry",              false, "Autorise/refuse l'entrée dans la zone pour les joueurs.");
     public static final BooleanFlag EXIT               = new BooleanFlag("exit",               false, "Autorise/refuse la sortie de la zone pour les joueurs.");
+    public static final StringFlag  GREETING           = new StringFlag("greeting",            "", 640, "Message affiche quand un joueur entre dans la zone. Le GUI permet de choisir chat, actionbar ou title. Supporte {player}, {zone}, les codes couleur & et \\n pour les titres.");
+    public static final StringFlag  FAREWELL           = new StringFlag("farewell",            "", 640, "Message affiche quand un joueur quitte la zone. Le GUI permet de choisir chat, actionbar ou title. Supporte {player}, {zone}, les codes couleur & et \\n pour les titres.");
+    public static final StringFlag  GAME_MODE          = new StringFlag("game-mode",           "", 16, List.of("survival", "creative", "adventure", "spectator"), "Change le gamemode du joueur en entrant dans la zone, puis restaure son gamemode precedent a la sortie.");
 
     // --- Magic mods (global on/off + blacklist/whitelist) ---
     public static final BooleanFlag ARS_SPELL_CAST      = new BooleanFlag("ars-spell-cast",      false, "[Ars Nouveau] Autorise/refuse le lancement de sorts dans la zone.",            "ars_nouveau");
@@ -97,11 +102,11 @@ public final class BuiltinFlags {
     public static final BooleanFlag SUPPLEMENTARIES_THROW = new BooleanFlag("supplementaries-throw", false, "[Supplementaries] Autorise/refuse le lancer de briques dans la zone.",                "supplementaries");
     public static final BooleanFlag PARCOOL_ACTIONS     = new BooleanFlag("parcool-actions",    false, "[ParCool] Autorise/refuse les actions parkour dans la zone.",                               "parcool");
     public static final BooleanFlag EMOTE_USE           = new BooleanFlag("emote-use",          false, "[Emotecraft] Autorise/refuse les emotes dans la zone.",                                     "emotecraft");
+    public static final BooleanFlag JADE_OVERLAY        = new BooleanFlag("jade-overlay",       false, "[Jade] Autorise/refuse l'affichage de l'overlay Jade dans la zone.",                      "jade");
     public static final BooleanFlag MUTANT_MOB_SPAWN    = new BooleanFlag("mutant-mob-spawn",   false, "[Mutant Monsters] Autorise/refuse le spawn de monstres mutants dans la zone.",             "mutantmonsters");
     public static final BooleanFlag TF_PROJECTILE       = new BooleanFlag("tf-projectile",      false, "[Twilight Forest] Autorise/refuse les projectiles de boss TF dans la zone.",               "twilightforest");
     public static final BooleanFlag CHARM_USE           = new BooleanFlag("charm-use",          false, "[Apotheosis] Autorise/refuse l'activation des charmes Apotheosis dans la zone.",           "apotheosis");
     public static final BooleanFlag WAYSTONE_USE        = new BooleanFlag("waystone-use",        false, "[Waystones] Autorise/refuse l'utilisation des waystones dans la zone.",                  "waystones");
-    public static final BooleanFlag RECHISELED_USE      = new BooleanFlag("rechiseled-use",      false, "[Rechiseled] Autorise/refuse l'utilisation des blocs Rechiseled dans la zone.",          "rechiseled");
     public static final BooleanFlag ARS_ADDITIONS_SCROLL = new BooleanFlag("ars-additions-scroll", false, "[Ars Additions] Autorise/refuse l'utilisation des parchemins Ars Additions.",         "ars_additions");
     public static final BooleanFlag ARS_WARP_SCROLL     = new BooleanFlag("ars-warp-scroll",     false, "[Ars Nouveau] Bloque specifiquement le warp scroll (teleport). Independant de ars-spell-cast.", "ars_nouveau");
     public static final BooleanFlag CARRYON             = new BooleanFlag("carryon",             false, "[Carry On] Bloque le ramassage/transport de blocs et entites via le mod Carry On.", "carryon");
