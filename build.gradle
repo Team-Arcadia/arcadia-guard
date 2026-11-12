@@ -34,7 +34,7 @@ repositories {
 }
 
 base {
-    archivesName = mod_id
+    archivesName = "${mod_name}-${mod_loader}-${minecraft_version}"
 }
 
 // Minecraft 1.20.1 runs on Java 17.
@@ -99,7 +99,7 @@ tasks.register('testJar', Jar) {
     group = 'build'
     description = 'Builds a development/test jar with runtime selftests and GameTest classes/resources.'
     dependsOn tasks.named('classes')
-    archiveBaseName.set(mod_id)
+    archiveBaseName.set("${mod_name}-${mod_loader}-${minecraft_version}")
     archiveVersion.set(mod_version)
     archiveClassifier.set('test')
     from(sourceSets.main.output)
