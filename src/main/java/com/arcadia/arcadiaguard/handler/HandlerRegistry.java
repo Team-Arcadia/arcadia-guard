@@ -90,6 +90,7 @@ public final class HandlerRegistry {
             new SpawnBookHandler(guardService),
             new ZoneItemHandler(guardService, dynamicItemBlockList),
             new ParcoolHandler(guardService),
+            new com.arcadia.arcadiaguard.handler.handlers.SableRagdollHandler(guardService),
             charmHandler
         );
         // H-P8: build typed arrays so dispatch loops cast once at boot, not on every event

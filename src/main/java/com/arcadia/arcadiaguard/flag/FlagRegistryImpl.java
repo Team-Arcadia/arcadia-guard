@@ -120,6 +120,7 @@ public final class FlagRegistryImpl implements FlagRegistry {
         register(BuiltinFlags.PARCOOL_ACTIONS);
         register(BuiltinFlags.EMOTE_USE);
         register(BuiltinFlags.JADE_OVERLAY);
+        register(BuiltinFlags.SABLE_RAGDOLL);
         register(BuiltinFlags.MUTANT_MOB_SPAWN);
         register(BuiltinFlags.TF_PROJECTILE);
         register(BuiltinFlags.CHARM_USE);
